@@ -84,4 +84,7 @@ loo2 = loo(ll2)
 comp = loo_compare(loo1,loo2)
 xtable(print(comp,simplify = FALSE, digits = 2))
 
+comp2 = loo_compare(loo1,loo2,loo3)
+xtable(print(comp2,simplify = FALSE, digits = 2))
+
 
