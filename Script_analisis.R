@@ -1,12 +1,12 @@
-library(bayesplot)
-library(rstan)
 library(cmdstanr)
-library(posterior)
+library(bayesplot)
 library(loo)
+library(rstan)
+library(posterior)
 library(xtable)
 library(ggplot2)
-library(ggthemes)
 library(cowplot)
+library(ggthemes)
 
 # ignora esta funcion
 dat_gen = function(N = 32,beta = rnorm(1),K = 4,alphaj = rnorm(K),seed  = NULL){
@@ -49,7 +49,7 @@ summarize_draws(fv1)
 # graficos de las posteriors multinivel
 g1 = mcmc_combo(fv1[,1:4],gg_theme = theme(legend.position = "none"))
 g2 = mcmc_combo(fv1[,5:7])
-cowplot::plot_grid(g1,g2,ncol = 2,rel_widths = c(1, 1.2))
+cowplot::plot_grid(g1,g2,ncol = 2,rel_widths = c(1.1, 1.2))
 
 
 # Leave one out modelo multinivel
