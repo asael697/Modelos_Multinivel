@@ -45,7 +45,7 @@ colnames(fv1) = c(levels(glevels),'sigma')
 
 # resumen de las cadenas
 summarize_draws(fv1)
-
+xtable(print(summarize_draws(fv1),simplify = FALSE, digits = 2))
 # graficos de las posteriors multinivel
 g1 = mcmc_combo(fv1[,1:4],gg_theme = theme(legend.position = "none"))
 g2 = mcmc_combo(fv1[,5:7])
