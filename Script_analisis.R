@@ -1,7 +1,7 @@
 library(cmdstanr)
 library(bayesplot)
 library(loo)
-library(rstan)
+#library(rstan)
 library(posterior)
 library(xtable)
 library(ggplot2)
@@ -38,7 +38,6 @@ fit1 <- sm1$sample(data = d1, chains = 4, parallel_chains = 4, refresh = 500)
 
 # mcmc para modelo de Gomez
 fit2 <- sm2$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)
-
 # extraer las cadenas de las variables importantes multinivel
 fv1 = fit1$draws(variables = c("mu_group","sigma"),format = "matrix")
 colnames(fv1) = c(levels(glevels),'sigma')
