@@ -14,6 +14,9 @@ ECV2021N <- ECV2021N[!is.na(ECV2021N$PGastoTotal), ]
 ECV2021NF <- subset(ECV2021N, P11_Zona1 %in% c("Zona Centro","Zona Insular",
                                                    "Zona Norte","Zona Occidental",
                                                    "Zona Oriental","Zona Sur"))
+
+#setwd("Modelos_Multinivel/Datos")
+save.image("Datos.RData")
 ## Gráficos de las densidades y cajas de las zonas del gasto turistico
 library(tidyverse)
 library(tidyquant)
