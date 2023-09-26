@@ -7,16 +7,17 @@ library(cowplot)
 library(ggthemes)
 library(loo)
 
-load("Datos/datos2016.RData")
+load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+#load("~/Documents/Modelos_Multinivel/Datos/Datos2016.RData")
 
 # Compilar el codigo Stan del modelo multinivel
-sm1 <- cmdstan_model("Stancodes/multi_level.stan")
+sm1 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/multi_level.stan")
 
 # Compilar el codigo Stan del modelo de Gomez
-sm2 <- cmdstan_model("Stancodes/skew_normal.stan")
+sm2 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/skew_normal.stan")
 
 # Compilar el codigo Stan del moelo multinivel Student-t
-sm3 <- cmdstan_model("Stancodes/ML_student.stan")
+sm3 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_student.stan")
 
 # La lista de datos que Stan necesita para hacer mcmc
 d1 = list(n = length(LogGFN), J = 6, group = gl, y = LogGFN)

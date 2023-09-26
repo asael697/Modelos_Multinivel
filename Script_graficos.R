@@ -18,8 +18,8 @@ EGYPV2016TNF2 <- subset(EGYPV2016TNF, Zona1 %in% c("Zona Centro","Zona Insular",
                                                    "Zona Oriental","Zona Sur"))
 
 # Variables adicionales
-GastoFinN = EGYPV2016TNF$GastoFin
-glevels = factor(EGYPV2016TNF$Zona1)
+GastoFinN = EGYPV2016TNF2$GastoFin
+glevels = factor(EGYPV2016TNF2$Zona1)
 
 gl = as.numeric(glevels[!is.na(log(GastoFinN))])
 gl
