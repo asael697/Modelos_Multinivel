@@ -22,6 +22,7 @@ gl = as.numeric(glevels[!is.na(log(GastoFinN))])
 gl
 LogGFN = na.exclude(log(GastoFinN))
 
+save.image("datos2016.RData")
 ## Gráficos de las densidades para GastoFinN y LogGFN
 
 library(ggplot2)

@@ -1,28 +1,12 @@
 library(cmdstanr)
 library(bayesplot)
 library(loo)
-#library(rstan)
 library(posterior)
 library(xtable)
 library(ggplot2)
 library(cowplot)
 library(ggthemes)
 
-# ignora esta funcion
-dat_gen = function(N = 32,beta = rnorm(1),K = 4,alphaj = rnorm(K),seed  = NULL){
-  
-  if (!is.null(seed))
-    set.seed(seed)
-  
-  g =  rep(1:K,N/K)
-  
-  # Generating the hierarchical model
-  x = rnorm(N)
-  y = rnorm(N, beta + alphaj, 1)
-  
-  df = data.frame(g = g,x = x,y = y)
-  return(df)
-}
 
 # Compilar el codigo Stan del modelo multinivel
 sm1 <- cmdstan_model("Stancodes/multi_level.stan")
