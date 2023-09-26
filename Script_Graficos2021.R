@@ -71,6 +71,7 @@ ECV2021NF %>%
 library(ggplot2)
 library(ggdist)
 
+## Otro grafico revisar esto
 ## Grafico por zonas gasto logaritmico
 ECV2021NF %>% 
   filter(P11_Zona1 %in% c("Zona Centro", "Zona Insular", "Zona Norte","Zona Occidental",
