@@ -1,27 +1,9 @@
-## Limpieza de la base datos ECV 2021
-library(haven)
-library(foreign)
-ECV2021<- read.spss("Datos/Base de la ECV 2021.sav")
-ECV2021 <-data.frame(ECV2021)
-## Filtrado de las variables que se necesitan para la estimación 
-
-ECV2021N <- subset(ECV2021, select = c(Validas,Mes,Trimestre,P04,CodCiuRes,
-                                       P04_RegionVA,P04_RegionVF,P11_Zona1,PGastoTotal))
-
-## Filtrado solo para los datos de Gasto y Perfil
-ECV2021N <- ECV2021N[!is.na(ECV2021N$PGastoTotal), ]
-## Filtrado solo para todas las zona menos la desconocida
-ECV2021NF <- subset(ECV2021N, P11_Zona1 %in% c("Zona Centro","Zona Insular",
-                                                   "Zona Norte","Zona Occidental",
-                                                   "Zona Oriental","Zona Sur"))
-
-#setwd("Modelos_Multinivel/Datos")
-save.image("Datos.RData")
-## Gráficos de las densidades y cajas de las zonas del gasto turistico
 library(tidyverse)
 library(tidyquant)
 library(ggdist)
 library(ggthemes)
+
+load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
 ## Grafico de Caja del Gasto y Densidad
 ECV2021NF %>% 
   filter(PGastoTotal>= 200, PGastoTotal <= 10000) %>%
