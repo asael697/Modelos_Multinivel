@@ -9,7 +9,7 @@ library(cowplot)
 library(ggthemes)
 
 # Compilar el codigo Stan del modelo student
-sm3 <- cmdstan_model("Stancodes/multi_level_student_t.stan")
+sm3 <- cmdstan_model("Stancodes/ML_student.stan")
 
 # mcmc para multinivel stundent_t
 fit3 <- sm3$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)

@@ -1,7 +1,6 @@
 library(cmdstanr)
 library(bayesplot)
 library(loo)
-#library(rstan)
 library(posterior)
 library(xtable)
 library(ggplot2)
@@ -31,7 +30,7 @@ sm1 <- cmdstan_model("Stancodes/multi_level.stan")
 sm2 <- cmdstan_model("Stancodes/skew_normal.stan")
 
 # La lista de datos que Stan necesita para hacer mcmc
-d1 = list(n = length(LogGFN), J = 6, group = gl, y = LogGFN)
+d1 = list(n = length(LogGTN), J = 6, group = gl, y = LogGTN)
 
 # mcmc para modelo multinivel
 fit1 <- sm1$sample(data = d1, chains = 4, parallel_chains = 4, refresh = 500)
@@ -46,6 +45,7 @@ colnames(fv1) = c(levels(glevels),'sigma')
 summarize_draws(fv1)
 xtable(print(summarize_draws(fv1),simplify = FALSE, digits = 2))
 # graficos de las posteriors multinivel
+color_scheme_set("blue")
 g1 = mcmc_combo(fv1[,1:4],gg_theme = theme(legend.position = "none"))
 g2 = mcmc_combo(fv1[,5:7])
 cowplot::plot_grid(g1,g2,ncol = 2,rel_widths = c(1.1, 1.2))
