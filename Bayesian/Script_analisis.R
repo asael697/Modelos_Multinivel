@@ -1,18 +1,22 @@
 library(cmdstanr)
 library(bayesplot)
-library(loo)
 library(posterior)
 library(xtable)
 library(ggplot2)
 library(cowplot)
 library(ggthemes)
+library(loo)
 
+load("Datos/datos2016.RData")
 
 # Compilar el codigo Stan del modelo multinivel
 sm1 <- cmdstan_model("Stancodes/multi_level.stan")
 
 # Compilar el codigo Stan del modelo de Gomez
 sm2 <- cmdstan_model("Stancodes/skew_normal.stan")
+
+# Compilar el codigo Stan del moelo multinivel Student-t
+sm3 <- cmdstan_model("Stancodes/ML_student.stan")
 
 # La lista de datos que Stan necesita para hacer mcmc
 d1 = list(n = length(LogGFN), J = 6, group = gl, y = LogGFN)
@@ -22,6 +26,10 @@ fit1 <- sm1$sample(data = d1, chains = 4, parallel_chains = 4, refresh = 500)
 
 # mcmc para modelo de Gomez
 fit2 <- sm2$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)
+
+#mcmc para modelo multinivel Student
+fit3 <- sm3$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)
+
 # extraer las cadenas de las variables importantes multinivel
 fv1 = fit1$draws(variables = c("mu_group","sigma"),format = "matrix")
 colnames(fv1) = c(levels(glevels),'sigma')
