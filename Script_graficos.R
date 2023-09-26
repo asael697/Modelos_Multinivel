@@ -5,7 +5,6 @@ EGYPV2016Turistas <- read.spss("Datos/EGYPV 2016 F01 - Turistas.sav")
 EGYPV2016Turistas <-data.frame(EGYPV2016Turistas)
 
 ## Filtrado de las variables que se necesitan para la estimación 
-
 EGYPV2016TN <- subset(EGYPV2016Turistas, select = c(Validas, TipViajero, TipVisitante, Mes, CodRes, RegRes, CodPrimVisita,P29_Mu4,
                                                     GruViaje, P10_3NumNoch, Pernocto, GruNoch, P11_THoteles, P11_TAmigos,
                                                     P11_TAlojP, CodTipMot, CodModViaje, P28_Total, CodEstCivil, P9_GruViaje, 
@@ -17,6 +16,16 @@ EGYPV2016TNF <- subset(EGYPV2016TN,Validas == "Gasto y Perfil")
 EGYPV2016TNF2 <- subset(EGYPV2016TNF, Zona1 %in% c("Zona Centro","Zona Insular",
                                                    "Zona Norte","Zona Occidental",
                                                    "Zona Oriental","Zona Sur"))
+
+# Variables adicionales
+GastoFinN = EGYPV2016TNF$GastoFin
+glevels = factor(EGYPV2016TNF$Zona1)
+
+gl = as.numeric(glevels[!is.na(log(GastoFinN))])
+gl
+LogGFN = na.exclude(log(GastoFinN))
+
+save.image("Datos2016.RData")
 ## Gráficos de las densidades y cajas de las zonas del gasto turistico
 library(tidyverse)
 library(tidyquant)
