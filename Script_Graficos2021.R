@@ -41,7 +41,7 @@ ECV2021NF %>%
   filter(P11_Zona1 %in% c("Zona Centro", "Zona Insular", "Zona Norte","Zona Occidental",
                       "Zona Oriental","Zona Sur"),
          PGastoTotal>=200, PGastoTotal<= 5000) %>% 
-  ggplot(aes(x = factor(P11_Zona1), y =log(PGastoTotal), fill = factor(P11_Zona1)))+
+  ggplot(aes(x = factor(P11_Zona1), y =PGastoTotal, fill = factor(P11_Zona1)))+
   # add half-violin from {ggdist} package
   stat_halfeye(
     # adjust bandwidth
@@ -70,8 +70,8 @@ ECV2021NF %>%
 
 library(ggplot2)
 library(ggdist)
-##Grafico Logaritmico
-## Grafico por zonas
+
+## Grafico por zonas gasto logaritmico
 ECV2021NF %>% 
   filter(P11_Zona1 %in% c("Zona Centro", "Zona Insular", "Zona Norte","Zona Occidental",
                           "Zona Oriental","Zona Sur"))%>% 
