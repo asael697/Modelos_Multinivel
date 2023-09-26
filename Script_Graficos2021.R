@@ -71,33 +71,16 @@ ECV2021NF %>%
 library(ggplot2)
 library(ggdist)
 
+## Otro grafico revisar esto
 ## Grafico por zonas gasto logaritmico
 ECV2021NF %>% 
   filter(P11_Zona1 %in% c("Zona Centro", "Zona Insular", "Zona Norte","Zona Occidental",
                           "Zona Oriental","Zona Sur"))%>% 
   ggplot(aes(x = factor(P11_Zona1), y =log(PGastoTotal), fill = factor(P11_Zona1)))+
   # add half-violin from {ggdist} package
-  stat_halfeye(
-    # adjust bandwidth
-    adjust = 0.5,
-    # move to the right
-    justification = -0.2,
-    # remove the slub interval
-    .width = 0,
-    point_colour = NA
-  )+
-  geom_boxplot(
-    width = 0.12,
-    # removing outliers
-    outlier.color = NA,
-    alpha = 0.7
-  )+
+  stat_halfeye(adjust = 0.5, justification = -0.2, .width = 0, point_colour = NA)+
+  geom_boxplot(width = 0.12, outlier.color = NA, alpha = 0.7)+
   theme_tq() +
-  labs(
-    title = "Densidades y Box-plot",
-    x = "",
-    y = "Gasto ",
-    fill = "Zonas"
-  )+ 
+  labs(title = "Densidades y Box-plot", x = "", y = "Gasto ", fill = "Zonas")+ 
   coord_flip()+
   theme(legend.position ="right",plot.title = element_text(hjust = 0.5))

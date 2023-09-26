@@ -13,10 +13,13 @@ ECV2021N <- subset(ECV2021, select = c(Validas,Mes,Trimestre,P04,CodCiuRes,
 
 ## Filtrado solo para los datos de Gasto y Perfil
 ECV2021N <- ECV2021N[!is.na(ECV2021N$PGastoTotal), ]
+ECV2021N <- subset(ECV2021N, PGastoTotal > 0)
+
 ## Filtrado solo para todas las zona menos la desconocida
 ECV2021NF <- subset(ECV2021N, P11_Zona1 %in% c("Zona Centro","Zona Insular",
                                                "Zona Norte","Zona Occidental",
                                                "Zona Oriental","Zona Sur"))
+
 
 ## Conversión del Gasto Fin a escala Logarítmica
 GastoTotal= ECV2021NF$PGastoTotal
