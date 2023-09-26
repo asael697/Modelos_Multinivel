@@ -1,7 +1,6 @@
 library(cmdstanr)
 library(bayesplot)
 library(loo)
-#library(rstan)
 library(posterior)
 library(xtable)
 library(ggplot2)
