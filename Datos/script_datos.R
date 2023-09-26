@@ -5,7 +5,7 @@ library(foreign)
 #               Datos para el 2021
 #####################################################################################
 
-ECV2021 <- read.spss("~/Documents/Modelos_Multinivel/Datos/Base de la ECV 2021.sav")
+ECV2021 <- read.spss("~/Documentos/Modelos_Multinivel/Datos/Base de la ECV 2021.sav")
 ECV2021 <- data.frame(ECV2021)
 ## Filtrado de las variables que se necesitan para la estimación 
 
@@ -28,14 +28,14 @@ gl
 LogGTN = na.exclude(log(GastoTotal))
 
 # setwd("Modelos_Multinivel/Datos")
-save.image("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+save.image("~/Documentos/Modelos_Multinivel/Datos/Datos2021.RData")
 rm(list = ls())
 
 #####################################################################################
 #               Datos para el 2016
 #####################################################################################
 
-EGYPV2016Turistas <- read.spss("~/Documents/Modelos_Multinivel/Datos/EGYPV 2016 F01 - Turistas.sav")
+EGYPV2016Turistas <- read.spss("~/Documentos/Modelos_Multinivel/Datos/EGYPV 2016 F01 - Turistas.sav")
 EGYPV2016Turistas <-data.frame(EGYPV2016Turistas)
 
 ## Filtrado de las variables que se necesitan para la estimación 
@@ -59,4 +59,4 @@ gl = as.numeric(glevels[!is.na(log(GastoFinN))])
 gl
 LogGFN = na.exclude(log(GastoFinN))
 
-save.image("~/Documents/Modelos_Multinivel/Datos/Datos2016.RData")
+save.image("~/Documentos/Modelos_Multinivel/Datos/Datos2016.RData")
