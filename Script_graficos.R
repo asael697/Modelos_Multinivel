@@ -4,7 +4,7 @@ library(tidyquant)
 library(ggdist)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2016.RData")
+load("~/Documentos/Modelos_Multinivel/Datos/Datos2016.RData")
 
 ## Grafico de Caja del Gasto y Densidad
 EGYPV2016TNF2 %>% 

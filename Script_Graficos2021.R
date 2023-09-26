@@ -3,7 +3,8 @@ library(tidyquant)
 library(ggdist)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+load("~/Documentos/Modelos_Multinivel/Datos/Datos2021.RData")
+
 ## Grafico de Caja del Gasto y Densidad
 ECV2021NF %>% 
   filter(PGastoTotal>= 200, PGastoTotal <= 10000) %>%
