@@ -18,7 +18,7 @@ model {
   sigma ~ student_t(5, 0, 10);
   
   // Prior for degrees of freedom
-  nu_group~ gamma(2, 0.1);
+  nu_group ~ gamma(2, 0.1);
   
   // Likelihood using t-student generalizada
   for (i in 1:n) {
