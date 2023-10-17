@@ -9,7 +9,7 @@ ECV2021 <- data.frame(ECV2021)
 ## Filtrado de las variables que se necesitan para la estimación 
 
 ECV2021N <- subset(ECV2021, select = c(Validas,Mes,Trimestre,P04,CodCiuRes,
-                                       P04_RegionVA,P04_RegionVF,P11_Zona1,PGastoTotal))
+                                       P04_RegionVA,P04_RegionVF,P10D, P11_Zona1,PGastoTotal))
 
 ## Filtrado solo para los datos de Gasto y Perfil
 ECV2021N <- ECV2021N[!is.na(ECV2021N$PGastoTotal), ]
