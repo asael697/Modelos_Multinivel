@@ -7,7 +7,7 @@ data {
 parameters {
   vector[J] mu_group; // Group-level means
   real<lower=0> sigma; // Individual-level standard deviation
-  vector[J] nu_group;
+  real<lower=1, upper=J> nu_group[J];
   #real<lower=2> nu; // Degrees of freedom for t-student generalizada
 }
 model {
@@ -18,7 +18,7 @@ model {
   sigma ~ student_t(5, 0, 10);
   
   // Prior for degrees of freedom
-  nu_group ~ gamma(2, 0.1);
+  nu_group ~ gamma(3, 0.1);
   
   // Likelihood using t-student generalizada
   for (i in 1:n) {

@@ -11,7 +11,7 @@ model {
   // priors
   mu ~ normal(0, 10);
   sigma ~ student_t(3, 0, 1);
-  alpha ~ normal(0, 1);
+  alpha ~ normal(0, 0.5);
   
   //likelihood
   y ~ skew_normal(mu, sigma, alpha);
