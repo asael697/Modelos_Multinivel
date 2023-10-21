@@ -80,6 +80,10 @@ loo3 = loo(ll3, r_eff = r_eff, cores = 2)
 comp = loo_compare(loo1,loo2,loo3)
 xtable(print(comp,simplify = FALSE, digits = 2))
 
+# compare LOO-s
+comp = loo_compare(loo1,loo2)
+xtable(print(comp,simplify = FALSE, digits = 2))
+
 
 
 
