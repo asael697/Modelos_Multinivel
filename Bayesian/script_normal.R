@@ -17,8 +17,8 @@ d1 = list(n = length(LogGTN), J = 6, group = gl, y = LogGTN)
 
 # mcmc para modelo multinivel
 fit <- sm$sample(data = d1, chains = 4, parallel_chains = 4, refresh = 500)
-fv = fit$draws(variables = c("mu_group","sigma"),format = "matrix")
-colnames(fv) = c(levels(glevels),'sigma')
+fv = fit$draws(variables = c("mu","mu_group","sigma"),format = "matrix")
+colnames(fv) = c("mu",levels(glevels),'sigma')
 
 # resumen de las cadenas
 summarize_draws(fv)
@@ -27,7 +27,7 @@ xtable(print(summarize_draws(fv),simplify = FALSE, digits = 2))
 # graficos de las posteriors multinivel
 color_scheme_set("blue")
 g1 = mcmc_combo(fv[,1:4],gg_theme = theme(legend.position = "none"))
-g2 = mcmc_combo(fv[,5:7])
+g2 = mcmc_combo(fv[,5:8])
 cowplot::plot_grid(g1,g2,ncol = 2,rel_widths = c(1.1, 1.2))
 
 ###########################################################

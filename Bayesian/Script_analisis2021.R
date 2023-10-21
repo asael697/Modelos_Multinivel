@@ -18,6 +18,9 @@ sm2 <- cmdstan_model("Stancodes/skew_normal.stan")
 # Compilar el codigo Stan del modelo student
 sm3 <- cmdstan_model("Stancodes/ML_student.stan")
 
+# Compilar el codigo Stan del modelo skew-normal-multi-nivel
+sm4 <- cmdstan_model("Stancodes/ML_skew_normal.stan")
+
 # La lista de datos que Stan necesita para hacer mcmc
 d1 = list(n = length(LogGTN), J = 6, group = gl, y = LogGTN)
 
@@ -29,6 +32,9 @@ fit2 <- sm2$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)
 
 # mcmc para modelo de Gomez
 fit3 <- sm3$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)
+
+# mcmc para modelo de Gomez
+fit4 <- sm4$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)
 
 # extraer las cadenas de las variables importantes multinivel
 fv1 = fit1$draws(variables = c("mu_group","sigma"),format = "matrix")
@@ -76,8 +82,13 @@ ll3 = fit3$draws(variables = "log_lik",format = "matrix")
 r_eff = relative_eff(exp(ll3), cores = 2, chain_id = rep(1:4, each = 1000))
 loo3 = loo(ll3, r_eff = r_eff, cores = 2)
 
+# Leave one out modelo student
+ll4 = fit4$draws(variables = "log_lik",format = "matrix")
+r_eff = relative_eff(exp(ll4), cores = 2, chain_id = rep(1:4, each = 1000))
+loo4 = loo(ll4, r_eff = r_eff, cores = 2)
+
 # compare LOO-s
-comp = loo_compare(loo1,loo2,loo3)
+comp = loo_compare(loo1,loo2,loo3,loo4)
 xtable(print(comp,simplify = FALSE, digits = 2))
 
 # compare LOO-s
