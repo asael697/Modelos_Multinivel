@@ -5,6 +5,7 @@ data {
   vector[n] y; // Observed log-normal data
 }
 parameters {
+  real mu;
   vector[J] mu_group; // Group-level means
   real<lower=0> sigma; // Individual-level standard deviation
   real<lower=1, upper=J> nu_group[J];
@@ -12,7 +13,8 @@ parameters {
 }
 model {
   // Prior for group-level parameters using t-student generalizada
-  mu_group ~ student_t(3, 0, 10);
+  mu ~ normal(0,1);
+  mu_group ~ student_t(3, mu, 1);
   
   // Prior for individual-level parameters
   sigma ~ student_t(5, 0, 10);

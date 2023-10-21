@@ -1,4 +1,4 @@
-library(cmdstanr)
+ibrary(cmdstanr)
 library(bayesplot)
 library(loo)
 library(posterior)
@@ -10,7 +10,7 @@ library(ggthemes)
 load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
 
 # Compilar el codigo Stan del modelo student
-sm <- cmdstan_model("Stancodes/ML_student.stan")
+sm <- cmdstan_model("Stancodes/ML_skew_normal.stan")
 
 # La lista de datos que Stan necesita para hacer mcmc
 d1 = list(n = length(LogGTN), J = 6, group = gl, y = LogGTN)
@@ -19,7 +19,7 @@ d1 = list(n = length(LogGTN), J = 6, group = gl, y = LogGTN)
 fit <- sm$sample(data = d1, chains = 4, parallel_chains = 4,refresh = 500)
 
 # extraer las cadenas de las variables importantes multinivel student_t
-fv = fit$draws(variables = c("mu","mu_group","nu_group","sigma"),format = "matrix")
+fv = fit$draws(variables = c("mu","mu_group","alpha","sigma"),format = "matrix")
 # Resumen de la cadenas
 summarise_draws(fv)
 
@@ -35,7 +35,7 @@ yrep = fit$draws(variables = c("y_rep"),format = "matrix")
 
 ppc_dens_overlay_grouped(LogGTN, yrep[sple,], group = glevels) + 
   labs(title = "Posterior Predictive checks",
-       subtitle = "Modelo student-t multinivel")
+       subtitle = "Modelo skew-normal multinivel")
 
 # Leave one out modelo multinivel student_t
 ll = fit$draws(variables = "log_lik",format = "matrix")
