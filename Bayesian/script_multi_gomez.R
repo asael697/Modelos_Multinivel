@@ -1,4 +1,4 @@
-ibrary(cmdstanr)
+library(cmdstanr)
 library(bayesplot)
 library(loo)
 library(posterior)
@@ -10,7 +10,7 @@ library(ggthemes)
 load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
 
 # Compilar el codigo Stan del modelo student
-sm <- cmdstan_model("Stancodes/ML_skew_normal.stan")
+sm <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_skew_normal.stan")
 
 # La lista de datos que Stan necesita para hacer mcmc
 d1 = list(n = length(LogGTN), J = 6, group = gl, y = LogGTN)
