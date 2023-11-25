@@ -10,16 +10,16 @@ library(ggthemes)
 load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
 
 # Compilar el codigo Stan del modelo multinivel
-sm1 <- cmdstan_model("Stancodes/multi_level.stan")
+sm1 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/multi_level.stan")
 
 # Compilar el codigo Stan del modelo de Gomez
-sm2 <- cmdstan_model("Stancodes/skew_normal.stan")
+sm2 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/skew_normal.stan")
 
 # Compilar el codigo Stan del modelo student
-sm3 <- cmdstan_model("Stancodes/ML_student.stan")
+sm3 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_student.stan")
 
 # Compilar el codigo Stan del modelo skew-normal-multi-nivel
-sm4 <- cmdstan_model("Stancodes/ML_skew_normal.stan")
+sm4 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_skew_normal.stan")
 
 # La lista de datos que Stan necesita para hacer mcmc
 d1 = list(n = length(LogGTN), J = 6, group = gl, y = LogGTN)

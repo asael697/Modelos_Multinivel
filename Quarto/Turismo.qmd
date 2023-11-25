@@ -1,0 +1,326 @@
+---
+title: "Estimación del gasto turístico en Honduras mediante Modelos Multinivel Bayesianos"
+author: "Eduardo Canales, Asael Matamoros"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    code-copy: true
+    self-contained: true
+    anchor-sections: true
+  gfm:
+    html-math-method: webtex
+    references: 
+      location: block
+bibliography: Refs.bib
+---
+
+```{r,echo=FALSE}
+#| message: false
+library(flextable)
+library(tidyverse)
+library(tidyquant)
+library(ggdist)
+library(ggthemes)
+load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+```
+
+## Abstract
+
+Tourism is one of the main economic activities of any developing country. One of the crucial aspects when carrying out studies of tourism indicators is the estimation of average expenditure per stay. To date, the methods used for this estimation have yet to incorporate multilevel hierarchies, leading to a failure to consider the asymmetry in the data distribution adequately. In this study, we propose an estimate of tourism expenditure disaggregated by areas visited by tourists using a multilevel `log-normal`model with hierarchical priors. The results indicate that our model is superior to the global models proposed in the literature.
+
+## Introducción
+
+El turismo es una actividad económica que en las últimas décadas se ha desarrollado de manera acelerada a nivel mundial. Según la OMT (2018) "es un sector fundamental de generación de ingresos en las economías emergentes y en desarrollo," y cada vez son más los países que dan un mayor peso al turismo en la planificación de sus políticas económicas. En Honduras, al igual que en muchos otros países se considera a la actividad turística como prioritaria e importante para dinamizar la economía mediante la atracción de inversión nacional y extranjera pero sin descuidar el concepto de desarrollo sostenible. Las estadísticas de turismo en Honduras se han centrado únicamente en el análisis a un nivel individual sin tener cuenta estructuras y relaciones más amplias que pueden existir al estudiar un fenómeno físico, sin embargo, muchos problemas de interés en la investigación y la práctica se desarrollan en contextos complejos donde los individuos están agrupados en grandes estructuras jerárquicas como equipos, organizaciones o regiones geográficas.
+
+El análisis del gasto turístico es fundamental para comprender y evaluar el derrame económico que este conlleva a la economía del país. La estimación adecuada de este indicador mediante modelos estadísticos proporciona una compresión integral y precisa del gasto generado por parte de los turistas que ingresan a realizar actividades económicas en un país. El gasto turístico varia según la zona visitada debido a que se realizan diferentes actividades económicas en cada una de ellas, ver @fig-gastozona. Zonas muy populares como la zona insular del país generan alto costos por hospedaje debido a su alta demanda turística. Esto genera una gran variabilidad en el gasto dificultando el proceso de estimación, y métodos clásicos como una media muestral @ITH-et-al-2016 o cualquier estimación global del gasto producen valores poco confiables e inexactos. Un fenómeno usual al estudiar estadísticas de turismo son los gastos atípicos generados por los turistas con alto poder adquisitivo, ver @fig-gastototal. Estos valores atípicos hacen que la distribución del gasto sea de colas pesadas, invalidando los supuestos de normalidad utilizados en los estimadores de medias muéstrales, y dificultando las comparaciones entre grupos, ver @fig-gastozona .
+
+```{r,echo=FALSE}
+#| label: fig-gastototal
+#| fig-cap: "Distribución del gasto turístico, donde aproximadamente el 11% representan valores atípicos o extremos, según los datos recolectados por la encuesta Encuesta de caracterización del visitante(ECV"
+ECV2021NF %>% 
+  filter(PGastoTotal>= 200, PGastoTotal <= 10000) %>%
+  ggplot(aes(x = "", y=PGastoTotal))+
+  # add half-violin from {ggdist} package
+  stat_halfeye(
+    # adjust bandwidth
+    adjust = 0.5,
+    # move to the right
+    justification = -0.2,
+    # remove the slub interval
+    .width = 0,
+    point_colour = NA,
+    alpha=0.7,
+    fill="#2297E7"
+  )+
+  geom_boxplot(
+    width = 0.12,
+    alpha = 0.7,
+    fill="#2297E7",
+    outlier.color = "red"
+  )+
+  theme_tq() +
+  labs(
+    title = "Gráfico de densidad y caja",
+    x = "",
+    y = "Gasto",
+  ) +
+  coord_flip()+
+  theme(legend.position ="right",plot.title = element_text(hjust = 0.5))
+
+```
+
+En ese sentido, para obtener estimaciones precisas es necesario utilizar enfoques estadísticos adecuados que permiten considerar la estructura jerárquica presente en el estudio del gasto por estadía generado por los turistas que visitan el país, capturando la variabilidad entre los turistas como individuos y teniendo en cuenta la estructura jerárquica presente según el destino principal que estos visitan. Los modelos multinivel permiten incorporar estructuras jerárquicas en el análisis teniendo en cuenta los efectos fijos como los efectos aleatorios lo cual los hace especialmente útiles para analizar datos longitudinales @Lindstrom-et-al-1990, datos de medidas repetidas o agrupados en diferentes niveles.
+
+El @ITH-et-al-2016 en su boletín de estadísticas presenta las tendencias del sector turismo en Honduras durante el periodo `2012`-`2016` el cual es de mucha importancia para este trabajo, donde se usan los datos generados por la encuesta de caracterización del visitante del visitante, `2021` (ECV). Dicha encuesta extrae el gasto por estadía generado por los turistas que ingresan al país, y se realiza al momento que el turista ha realizado una gran parte de su estadía y esta cerca de regresar a su país de residencia.
+
+Este estudio propone un modelo probabilístico `log-normal` multinivel estratificado por la zona visitada por los turistas, con medias entre grupos y varianza desconocidas. El modelo propuesto obtiene estimaciones precisas del gasto turístico en Honduras y las colas pesadas de la distribución log-normal permite tener estimaciones resistente a gastos atípicos. Adicionalmente, la estructura multinivel del modelo permite determinar la variabilidad del gasto en los diferentes destinos turísticos del país como estructura jerárquica, con el fin de proporcionar información más precisa y relevante para la planificación estratégica para impulsar el crecimiento y desarrollo del sector turismo. La inferencia de los parámetros desconocidos se realizo mediante un enfoque Bayesiano con distribuciones a priori débiles y poco informativas @gelman2020bayesian, y las distribuciones a posteriori del modelo propuesto son muestreadas utilizando un Monte Carlo Hamiltoneano @Simon-et-al-1987; mediante el algoritmo NUTS @Matthew-et-al-2014 realizando las implementaciones en Stan @Stan-et-al-2017, mediante el software computacional @R . Nuestro modelo fue comparado con otros modelos recientes de la literatura que al ser modelos globales no contemplan la variabilidad entre grupos que presentan los datos. Comparamos la capacidad predictiva de los modelos utilizando validación cruzada @vehtari2015 y el criterio de información de Watanabe @watanabe2010, donde nuestro modelo superó a los modelos de la literatura, siendo este el modelo con mejor capacidad predictiva.
+
+El resto del documento se resumen a continuación. El capítulo 2, presenta los modelos multinivel y sus aplicaciones en diferentes áreas de investigación, y se presentan diferentes estudios del gasto turístico en diferentes países. En el capítulo 3 hacemos una descripción estadística del Gasto turístico en Honduras y presentamos el modelo multinivel propuesto, como el modelo reciente propuesto por @Gómez-et-al-2022 . En el cuarto capítulo presentamos los resultados obtenidos al implementar nuestro modelo y el modelo de @Gómez-et-al-2022 al gasto registrado por los turistas en Honduras en el año 2016. Finalmente, en el capítulo 5 presentamos una discusión de las ventajas de nuestro modelo sobre los demás propuestos en la literatura y conclusiones.
+
+## Antecedentes
+
+Los modelos multinivel, también conocidos como modelos de efectos mixtos son ampliamente utilizados para el análisis de datos, estos modelos permiten tener en cuenta los efectos fijos como los efectos aleatorios lo cual los hace especialmente útiles para analizar datos longitudinales @Lindstrom-et-al-1990 o de panel @Zubizarreta-et-al-2020, @Proencca-et-al-2005, datos de medidas repetidas o agrupados en diferentes niveles. En las ultimas décadas las metodologías estadísticas para analizar medidas repetidas han tenido un notable desarrollo debido a la facilidad de su implementación gracias a los avances del la computación.
+
+@Nan-et-al-1982 introdujo los modelos multinivel y su aplicación en el análisis de datos longitudinales que tiene en cuenta los efectos fijos como los efectos aleatorios, este trabajo sentó bases para el desarrollo de los modelos mixtos en diversas áreas de investigación. Adicionalmente, las estimaciones mediante los modelos multinivel se pueden obtener utilizando diferentes métodos; @Correa-et-al-2016 aborda cada una de estas y explica en detalle como pueden ser obtenidas a partir de medidas repetidas o longitudinales. Los primeros métodos numéricos para la estimación en los modelos multinivel son mínimos cuadrados @Bates-et-al-1988; máxima verosimilitud @Lindstrom-et-al-1988; y máxima verosimilitud restringida @Lindstrom-et-al-1990 . En la actualidad los métodos Bayesianos se han vuelto popular para estimar modelos con estructuras multinivel ya que permiten obtener estimaciones confiables de los efectos fijos y aleatorios mediante la introducción de información adicional a través de la distribución a priori, y permiten cuantificar la incertidumbre de los efectos mediante el uso de la distribución a posteriori @Paul-et-al-2018 .
+
+Estos modelos son una extensión de los modelos de regresión lineal que acoplan varios modelos lineales para cada nivel de análisis, es decir considerar dentro un mismo modelo los distintos niveles de la estructura jerárquica y conocer la variabilidad debida al segundo nivel @Fernande-et-al-2012, del mismo modo un modelo Bayesiano multinivel se construye a partir del modelo de regresión lineal ordinario y intentará predecir la variable de respuesta ($y_i$) mediante una combinación lineal de un intercepto y una pendiente que cuantifica la influencia de un predictor ($x_i$) , para mas detalles ver @Rivas-et-al-2022 . Las siguientes ecuaciones muestran la estructura clásica de un modelo lineal simple,
+
+$$
+y_i = \alpha+\beta x_i + \sigma_{e}e_i, \quad e_i \sim N(0,1).
+$$
+
+En este modelo las variables de respuesta $y_i$ se distribuyen normalmente alrededor de la media $\alpha+\beta x_i$ y varianza residual $\sigma_{e}^{2}$. El modelo anterior se puede extender al siguiente modelo multinivel con $j$ niveles o grupos, incorporando un intercepto variable expresado a continuación:
+
+$$
+y_{ij} =\alpha_{j}+\beta x_i + \sigma_{e}e_i, \quad e_i \sim N(0,1);
+$$
+
+$$
+\alpha_{j} \sim N(\alpha,\sigma_{\alpha}^2) \quad \text{para todo } j \in 1,2,\ldots, J.
+$$
+
+donde $\alpha_{ij}$ indica que a cada grupo $j$ se le da un intercepto único, @Rivas-et-al-2022 menciona que además de la varianza $\sigma_{e}^{2}$ también se está estimando un componente más $\sigma_{\alpha}^{2}$ que representa la varianza de la distribución de los interceptos variables, esta se considera como la variación del parámetro $\alpha$ entre los grupos $j$, siguiendo una metodología similar es posible introducir un termino de pendiente variables que pueda cambiar según el grupo $j$.
+
+```{=latex}
+\begin{equation}
+y_{ij} =\alpha_{j}+\beta_j x_{i,j} + \sigma_{e}e_i, \quad e_i \sim N(0,1);
+\end{equation}
+```
+```{=latex}
+\begin{equation*}
+\alpha_{j} \sim N(\alpha,\sigma_{\alpha}^2), \quad \beta_{j} \sim N(\beta,\sigma_{\beta}^2), \quad \text{para todo } j \in 1,2,\ldots, J.
+\end{equation*}
+```
+A estas pendientes variables se les asigna una distribución a priori centrada en la gran pendiente $\beta$, y con varianza $\sigma_{\beta}^2$. Con lo anterior, la inferencia Bayesiana nos permite realizar todas estas aseveraciones posibles que podemos aplicar en los modelos multinivel, para ello supongamos que tenemos $K$ observaciones agrupadas en $J$ grupos, la variable de interés es $y_{ij}$ que representa la observación $i-$ésima en el grupo $j$, podemos modelar la variable $y_{ij}$ en un modelo multinivel lineal Bayesiano de la siguiente manera;
+
+```{=latex}
+\begin{equation}
+y_{i,j} =\mu_{j} + \beta_j x_i +\sigma_{e}e_i, \quad e_i \sim N(0,1);
+\end{equation}
+```
+```{=latex}
+\begin{equation*}
+\mu_{j} \sim N(\mu,\sigma_{\mu}^2), \ \beta_j \sim N(\beta, \sigma_\beta), \quad \sigma_{e} \sim \text{student-t}(v_e),
+\end{equation*}
+```
+con distribuciones a priori:
+
+```{=latex}
+\begin{equation*}
+\mu \sim N(\mu_0,\sigma_{\mu0}^2), \ \beta \sim N(\beta_0,\sigma_{\beta0}^2), \quad \sigma_\mu \sim \text{student-t}(v_0), \ \sigma_\beta \sim \text{student-t}(v_1).
+\end{equation*}
+```
+donde, $y_{ij}$ es la observación i-ésima en el grupo $j$, $\mu_{j}$ es la media del grupo $j$ para la observación $i$ centrada en la media global $\mu$ y escala $\sigma_\mu$; y $\sigma_{e}^{2}$ es la varianza asociada con las observaciones individuales, también conocida como varianza residual o error relativo. Los valores $\mu_0, \beta_0, \sigma_{\mu0}, \sigma_{\beta0}, v_e, v_0$ y $v_1$ son hiper-parámetros conocidos y elegidos por el investigador.
+
+Las actividades turísticas se consideran como una de las fuentes más importantes en el crecimiento económico de un país es por ello que la estimación del gasto turístico es un aspecto fundamental para comprender el impacto y poder tomar decisiones adecuadas. En base a ello se han realizado diversos trabajos a lo largo del tiempo, como @Wein-Ting-et-al-2013 el cual es uno de los primeros trabajos en aplicar un análisis multinivel de los determinantes de gasto turístico de los hogares donde los resultados obtenidos indican que las variables como edad, renta familiar, la propiedad de un vehículo y el uso del internet influyen positivamente en el gasto turístico, @Zubizarreta-et-al-2020 propone un modelo de regresión múltiple para una cuantificación del gasto turístico, asimismo @Vena-et-al-2020 trabajo con determinantes del gasto turístico aplicando varios modelos multinivel.
+
+Uno de los problemas que se generan al momento de realizar estimaciones del gasto turístico es que se obtienen colas pesadas en las distribuciones, esto debido a que hay muchos factores que pueden influir @Gómez-et-al-2022. A lo largo de estos años muchos estudios se han enfocado en abordar este problema de colas pesadas; @Ruth-et-al-2009 mencionan que una solución es segmentar el gasto turístico por categorías en el cual identificaron asociaciones estadísticamente significativas entre los distintos segmentos de gasto, examinando la importancia de una serie de variables socio-económicas y de comportamiento. @Emilio-et-al-2020 proponen que otra forma es dividir el gasto total de los turistas basados en el gasto según el país de origen y destino que estos tomen, por otra parte, en estudios más recientes como @Nolasco-et-al-2022 utilizaron series temporales para pronosticar el gasto medio de turista en España.
+
+El modelo presentado por @Gómez-et-al-2022, cumple con todas las características de nuestra investigación dado que sera un punto de comparación con nuestro modelo propuesto, @Gómez-et-al-2022 prueban en su artículo que realizando una reparametrización de la distribución `log-skew` normal de tres parámetros para la modelización del gasto turístico en base usando distintas covariables como el país de origen, destino y el gasto total, se obtienen resultados satisfactorios en los datos del gasto en las las partes de la distribución empírica, de igual forma el modelo se adapta bien para captar la asimetría, curtosis y colas pesadas que las tres variables mencionadas tienden a presentar en la practica, como lo es en nuestro caso, ver @fig-gastozona. En tal sentido por ello utilizamos modelos multinivel y así poder obtener estimaciones precisas en la variabilidad del gasto turístico.
+
+## Modelización del gasto turístico por estadía en Honduras
+
+La encuesta de caracterización del visitante (ECV) para el año $2021$ se aplicó a $4,711$ turistas extranjeros, de los cuales todos ellos declararon un gasto válido para el análisis, alrededor del $50\%$ de los turistas pernoctaron al menos siete noches en el país y en promedio pernoctaron once noches *(estadísticas del número de noches por estadía; min. 1, media 9, mediana 7, max. 90)*. El gasto turístico promedio es de $323$ dólares, el gasto mínimo reportado fue de $5$ dolares, mientras que el gasto máximo fue de $22,653$ dólares. Además, el $63\%$ $(2969\;\;turistas)$ de los turistas encuestados reportaron un gasto mayor a $700$ dólares, esto es, el doble del gasto promedio registrado para el año $2021$.
+
+```{r,echo=FALSE}
+#| label: fig-gastozona
+#| fig-cap: "Distribución del gasto turístico por estadía desagregado por zonas que visitaron en Honduras, según los datos recolectados por la encuesta (ECV)."
+
+ECV2021NF %>% 
+  filter(P11_Zona1 %in% c("Zona Centro", "Zona Insular", "Zona Norte","Zona Occidental",
+                      "Zona Oriental","Zona Sur"),
+         PGastoTotal>=200, PGastoTotal<= 5000) %>% 
+  ggplot(aes(x = factor(P11_Zona1), y =PGastoTotal, fill = factor(P11_Zona1)))+
+  # add half-violin from {ggdist} package
+  stat_halfeye(
+    # adjust bandwidth
+    adjust = 0.5,
+    # move to the right
+    justification = -0.2,
+    # remove the slub interval
+    .width = 0,
+    point_colour = NA
+  )+
+  geom_boxplot(
+    width = 0.12,
+    # removing outliers
+    outlier.color = NA,
+    alpha = 0.7
+  )+
+  theme_tq() +
+  labs(
+    title = "Densidades y Box-plot",
+    x = "",
+    y = "Gasto ",
+    fill = "Zonas"
+  )+ 
+  coord_flip()+
+  theme(legend.position ="right",plot.title = element_text(hjust = 0.5))
+
+```
+
+El cuadro @tbl-gasto-turistico proporciona un resumen detallado del gasto turístico de los visitantes sin aplicarle la transformación logarítmica a los datos, desglosado por las diferentes zonas que visitaron en Honduras, cada una de ella exhibe características únicas en términos de patrones de gasto, mencionar que las zonas están divididas según la (ECV) de la siguiente manera; *`Zona centro, insular, norte, occidental, oriental y sur`*. Por ejemplo, la *`zona centro`* muestra una concentración moderada del gasto al rededor de la mediana indicando una distribución relativamente equilibrada, caso contrario en la `zona insular` donde se observa una mediana más alta de $2{,}635$, sugiriendo una concentración de gastos excepcionalmente altos y de valores atípicos. Además, las *`zonas norte, oriental`* y *`sur`* muestran una asimetría notable indicando una distribución desplazada ó colas pesadas hacia valores superiores.
+
+Al analizar detalladamente la asimetría en cada zona, logramos identificar patrones en la distribución del gasto turístico; comenzando con la *`zona centro`* donde observa una asimetría de $3{.}46$, indicando que la distribución tiene una cola más larga hacia los valores superiores, lo mismo sucede en las *`zonas insular y norte`* con valores de $3{.}52$ y $6{.}24$ respectivamente, lo que sugiere que hay presencia de valores atípicos, la *`zona oriental`* también muestra una asimetría más alta de $3{.}54$, reflejando una cola más larga hacia la derecha, en la caso de la *`zona occidental y sur`* indican colas pesada pero no tan pronunciadas. En cuanto a la kurtósis, se notan variaciones en la forma de las distribuciones en el caso de las *`zonas centro y oriental`* exhiben colas pesadas y picos más notables respectivamente, lo cual implica que hay mayor concentración de valores extremos, la *`zona norte`* destaca con una kurtósis excepcionalmente alta de $61{.}67$, las *`zonas occidental y sur`* presentan colas más acentuadas a la distribución normal, aunque menos extremas, lo mismo en la *`zona insular`*.
+
+```{r,echo=FALSE}
+#| label: tbl-gasto-turistico
+#| tbl-cap: "Resumen de gasto turístico desagregado por zonas, de los visitantes que ingresaron al país año 2021"
+
+# Datos de la tabla
+datos <- data.frame(
+  Zona = c("Centro", "Insular", "Norte", "Occidental", "Oriental", "Sur", "Global"),
+  n = c(1173, 805, 1338, 616, 342, 437, 4711),
+  `min.` = c(14.62, 60, 6.98, 7.76, 28.93, 5, 5),
+  Q1 = c(327.69, 2000, 459.06, 134.64, 295.33, 200, 350),
+  mediana = c(934.58, 2635, 1000, 332.93, 1192.18, 535.52, 1050),
+  Q3 = c(1720, 3500, 1500, 1000, 2137.5, 1739.43, 2050),
+  `max.` = c(15000, 20000, 22653.31, 10000, 10500, 10184.09, 22653),
+  asimetría = c(3.46, 3.52, 6.24, 3.54, 1.84, 2.32, 3.58),
+  kurtósis = c(24.18, 24.35, 61.67, 21.94, 8.44, 9.6, 27.27)
+)
+
+# Crear la tabla flextable
+ft=flextable(datos)
+autofit(ft)
+
+
+```
+
+En la @fig-gastozona, se presenta las densidades del gasto turístico desagregado por zonas, donde se observa que la mayor parte de la información del gasto se concentra entre los primeros tres mil valores, el gráfico de cajas revela muy poca información, más del $87\%$ de los datos están cercanos a cero, estos gráficos indican que el gasto turístico no sigue una distribución normal. En ese sentido, se propone aplicar una transformación logarítmica a los datos para lidiar con los valores extremos de la muestra, el cual representan aproximadamente el $5\%$, ver @fig-gastototal. En la @fig-gastozonalog, se presentan la transformación logarítmica del gasto desagregado por zonas, donde las densidades indican que los datos siguen una distribución normal, el gráfico de cuantiles mejora significativamente al aplicar dicha transformación en comparación con la @fig-gastozona .
+
+```{r,echo=FALSE}
+#| label: fig-gastozonalog
+#| fig-cap: "Distribución del gasto turístico logarítmico por estadía desagregado por zonas que visitaron en Honduras, según los datos recolectados por la encuesta (ECV)."
+
+# Grafico por zonas gasto logaritmico
+ECV2021NF %>% 
+  filter(P11_Zona1 %in% c("Zona Centro", "Zona Insular", "Zona Norte","Zona Occidental",
+                          "Zona Oriental","Zona Sur"))%>% 
+  ggplot(aes(x = factor(P11_Zona1), y =log(PGastoTotal), fill = factor(P11_Zona1)))+
+  # add half-violin from {ggdist} package
+  stat_halfeye(adjust = 0.5, justification = -0.2, .width = 0, point_colour = NA)+
+  geom_boxplot(width = 0.12, outlier.color = NA, alpha = 0.7)+
+  theme_tq() +
+  labs(title = "Densidades y Box-plot", x = "", y = "Gasto ", fill = "Zonas")+ 
+  coord_flip()+
+  theme(legend.position ="right",plot.title = element_text(hjust = 0.5))
+
+```
+
+En muchas situaciones, los datos empíricos muestran una ligera o marcada asimetría y colas pesadas, que refleja valores extremos @Gómez-et-al-2022, es por ello, que en este trabajo proponemos un modelo jerárquico utilizando un solo nivel con los datos en escala logarítmica. Sea $y_{ij}=\left\{y_{1,j_1},y_{2,j_2},\dots ,y_{n,j_n}\right\}$ una muestra aleatoria para el gasto turístico, donde $y_{ij}$ es el gasto para la observación $i$ en la zona \$j\$, tal que $j = 1, 2,3, \ldots, 7;$ y cada observación en escala logarítmica, se distribuye normal jerárquicas con vector de medias entre grupos $\mu = (\mu_1,\mu_2,\ldots, \mu_7)$ y varianza global ($\sigma^2$) desconocidas,
+
+```{=latex}
+\begin{equation}
+\log(y_{ij}) \sim N(\mu_j,\sigma),
+\end{equation}
+```
+con distribuciones a priori:
+
+-   $\mu_j \sim N(0,10)$ es la media entre grupos del gasto turístico para la zona j; que siguen una distribución normal con media cero y varianza diez.
+-   $\sigma \sim$ student-t$(5,0,10)$ es la varianza global del logaritmo del gasto, que sigue un distribución *`t de student`* definida en los valores positivos, con $v = 5$ grados de libertad, centrada en cero y con escala de diez.
+
+En este estudio utilizamos distribuciones a priori débilmente informativas, y se eligen de tal forma que dichas distribuciones provean poca información y mejoren la geometría de la función propuesta tal que el muestreo de la distribución a posteriori sea mas estable, para mas detalles ver @Gelman-et-al-2020:workflow . Asimismo, realizaremos una comparación con la distribución propuesta por @Gómez-et-al-2022 , el cual utilizó un modelo *`log-normal asimétrico`* para estimar el gasto turístico global. El modelo viene dado de la siguiente manera:
+
+```{=latex}
+\begin{equation}
+\log(y_{i}) \sim \text{skew-N}(\mu,\sigma, \alpha),
+\end{equation}
+```
+con parámetros de locación ($\mu$), escala ($\sigma$) y de forma ($\alpha$) desconocidos, y distribuciones a priori:
+
+-   $\mu \sim N(0,10)$ es la media del gasto turístico global; que siguen una distribución normal con media cero y varianza diez.
+
+-   $\sigma \sim$ student-t$(3,0,10)$ es la varianza global del logaritmo del gasto, que sigue un distribución *`t de student`* definida en los valores positivos, con $v = 3$ grados de libertad, centrada en cero y con escala de diez.
+
+-   $\alpha \sim N(0,1)$ es la asimetría global del logaritmo del gasto, que sigue un distribución *`normal`* estándar.
+
+Donde $i=1,\dots,n$ son los índices de los datos globales, $n$ denota el número de observaciones, skew-N() denota la densidad de una distribución normal asimétrica, y las distribuciones a priori elegidas son débilmente informativas.
+
+Para realizar las estimaciones del gasto turístico de los modelos propuestos, utilizaremos métodos de Markov Chain Monte Carlo (MCMC) como @metropolis1953, @Hasting1970. En particular emplearemos un Monte Carlo Hamiltoneano @Simon-et-al-1987, @hoffman14 implementado en el lenguaje de programación probabilista @Stan , y ejecutado en el lenguaje de programación R @Stan, @Bürkner-et-al-2017. Para cada implementación se corrieron cuatro cadenas con valores iniciales distintas, con un total de $2,000$ iteraciones por cadena, eliminando las primeras $1,000$ iteraciones por cadena (*`warm-up`*). Presentamos las distribuciones a posteriori del modelo multinivel propuesto y evaluamos la convergencia de las cadenas utilizando el factor de convergencia ($\hat{R}$), y los tamaños de muestra efectivos ($ess$) @Bob2020. Para las visualizaciones de las cadenas se usó trazas y gráficos de densidades @Gabry2019, @bayesplot2019 . Para, evaluar el ajuste del modelo utilizaremos evaluación de la densidad predictiva (*`posterior predictive checks`*) visualizando el ajuste con gráficos de densidades, @Sailynoja-etal-2021:graphical. Finalmente, comparamos ambos modelos utilizando validación cruzada, ver @Vehtari2016 . Dicho método computa las esperanzas de las log-predictivas ($elpd$) removiendo una observación $y_{i}$ de la muestra y computar la log-predictiva del modelo para dicha observación faltante; este procedimiento es caro computacionalmente pero puede ser aproximado usando un muestreo por importancia con un suavizado de Pareto @vehtari2015 , o por submuestreo @Måns-et-al-2020.
+
+## Análisis y Resultados
+
+```{r,echo=FALSE}
+#| label: fig-posteriori
+#| fig-cap: "Densidades y cadenas de Markov del modelo log normal multinivel propuesto."
+```
+
+![Figura 4: Densidades y cadenas de Markov del modelo log normal multinivel propuesto.](posteriori2021.png){fig-align="center" width="2000"}
+
+En el @tbl-posterior se proporciona un resumen de los resultados obtenidos de las distribuciones a posteriori del modelo *`log normal`* multinivel. En primer lugar la media representa el estimador puntual de los parámetros al igual que la mediana. Los valores de la desviación (*`sd`*) y desviación absoluta media (*`mad`*) son los estimadores del error de Monte Carlo, valores bien cercanos a cero reflejan que las estimaciones obtenidas tienen un alto grado de confiabilidad y se aprecia que son estables en todas las zonas analizadas, los valores *`Q5`* y *`Q95`* señalan los intervalos de credibilidad al $10\%$, el indicador *`Rhat`* se refiere al diagnóstico de convergencia para comparar las estimaciones entre y dentro de la cadenas de cada parámetros estimado, valores muy cercanos a uno implican un buen diagnostico, y lo interpretamos como que las cadenas del MCMC muestrearon y convergieron eficientemente.
+
+```{r,echo=FALSE}
+#| label: tbl-posterior
+#| tbl-cap: "Resumen de las distribuciones a posteriori obtenidas del modelo log normal multinivel"
+library(flextable)
+# Crear un data frame con los datos
+datos2 <- data.frame(
+  variable = c("Zona Centro", "Zona Insular", "Zona Norte", "Zona Occidental", "Zona Oriental", "Zona Sur", "sigma"),
+  media = c(6.62, 7.87, 6.69, 5.86, 6.69, 6.28, 1.11),
+  mediana = c(6.62, 7.87, 6.69, 5.86, 6.68, 6.28, 1.11),
+  sd = c(0.03, 0.04, 0.03, 0.04, 0.06, 0.05, 0.01),
+  MAD = c(0.03, 0.04, 0.03, 0.05, 0.06, 0.05, 0.01),
+  Q5 = c(6.57, 7.8, 6.64, 5.78, 6.59, 6.19, 1.09),
+  Q95 = c(6.67, 7.94, 6.74, 5.93, 6.78, 6.37, 1.13),
+  Rhat = c(1, 1, 1, 1, 1, 1, 1),
+  ess_bulk = c(5429.56, 6382.14, 5623.11, 5469.62, 5847.9, 6406.71, 5716.4),
+  ess_tail = c(2758.98, 3077.3, 2849.54, 3097.26, 2773.99, 2982.07, 3060.18)
+)
+
+# Crear la tabla flextable
+ft2=flextable(datos2)
+autofit(ft2)
+```
+
+Los valores *`ess_bulk`* y *`ess_tail`*, son indicadores para medir la eficiencia de las estimaciones de tamaño de muestra efectivo, la primera se enfoca en la regiones donde la densidad de probabilidad es más alta es decir la parte central de la distribución y la segunda en las colas o extremos de la distribución, estos valores deben ser cercanos a $4000$ o similares entre si, en nuestro caso los resultados indican que en cada zona refleja la eficiencia con lo que las cadenas de están explorando y muestreando en ambas partes de la distribución. Finalmente, los valores obtenidos se observan bien y los indicadores de convergencia muestrean bien nuestro modelo propuesto para la estimación del gasto turístico el cual se puede observar en la figura *4*, donde las cadenas MCMC lograron hacer un *`"mixing"`* efectivo al juntarse entre sí y parecer estacionaras, las densidades se ven simétricas y sin múltiples modas, siendo estos indicadores de convergencia.
+
+Los resultados obtenidos del modelo de @Gómez-et-al-2022, todos los *`Rhat`* son cercanos a $1$ siguiendo la misma explicación de nuestro modelo, asimismo los *`ess_bulk`* y *`ess_tail`* también son cercanos a las $4000$ iteraciones obtenidas, por lo tanto, aceptamos nuevamente la convergencia del modelo. La figura `5` muestra las ``` ``Posterior Predictive Checks'' ``` del modelo *`log normal`* multinivel donde vemos que las predicciones generadas por el modelo son similares a los datos reales para cada una de las zonas, lo cual sugiere que nuestro modelo es capaz de capturar adecuadamente la variabilidad del gasto turístico desagregado por zonas.
+
+![Figura 5: Posterior Predictive Checks del modelo log normal multinivel propuesto.](predictive_2021multi.png){fig-align="center"}
+
+```{r,echo=FALSE}
+#| label: tbl-model-comparison
+#| tbl-cap: "Resumen de la comparación del modelo log normal multinivel y Gómez et al. (2022)"
+library(flextable)
+# Crear el data frame con los datos de la tabla
+datos3 <- data.frame(
+  modelo = c("multi-nivel", "Gomez"),
+  elpd_diff = c(0, -577.05),
+  se_diff = c(0, 28.35),
+  elpd_loo = c(-7172.74, -7749.78),
+  waic = c(14345.47, 15499.56)
+)
+
+# Crear la tabla flextable
+ft3=flextable(datos3)
+autofit(ft3)
+```
+
+La @tbl-model-comparison muestra los resultados obtenidos por validación cruzada, la primer columna representa la diferencia de las log predictivas esperadas `elpd_diff`, la diferencia es de $296.54$ unidades a favor del modelo multinivel por lo cual nuestro model tiene mayor capacidad predictiva que el modelo global de Gomez, la segunda columna `sd_diff` corresponde al error estándar de las diferencias de estimación del valor `elpd_diff`, en este caso la diferencia es poca, aceptando el ajuste de la `elpd`. La tercera columna *`elpd_loo`* son los valores de la log predicitivas de cada modelo, mediante el método de validación cruzada *`LOO(Leave-One-Out)`* el cual indica la calidad predictiva, se observa que nuestro modelo presenta mejor resultados. Por último, tenemos el valor del criterio de información de Watanabe-Akaike *`WAIC`* @watanabe2010, dicho criterio elige al modelo con valor menor, el cual confirma que nuestro modelo es el que presenta mejores resultados.
+
+## Conclusiones
+
+En la comparación entre el modelo *`log normal`* multi-nivel propuesto y el modelo de referencia presentado por @Gómez-et-al-2022 se observa una serie de diferencias sustanciales que respaldan la viabilidad y ventajas de nuestro enfoque. Una característica destacada del modelo propuesto es la eliminación de la necesidad de estimar un parámetro de forma, el cual suele ser bien engorroso de estimar, esto simplifica el proceso de estimación y refuerza la robustez de las predicciones; en cambio el modelo de @Gómez-et-al-2022 asume una uniformidad del gasto en todo el país sin considerar las variaciones que se presenten en las distintas zonas turísticas es decir para los datos del gasto turístico global como se observa en la @fig-gastototal . Nuestro modelo multinivel si aborda explícitamente estas diferencias que surgen con lo cual se obtienen estimaciones más precisas y ajustadas como se observó en los resultados de la validación cruzada. Asimismo, es importante resaltar que según el criterio *`LOO(Leave-One-Out)`* obtenido nuestro modelo puede predecir una nueva información con precisión.
+
+En este trabajo, hemos profundizado la relevancia que tienen las distribuciones *`log normales`* y los modelos multinivel. Las distribuciones *`log normales`* son especialmente útiles para modelar datos en los cuales se cuenta con colas pesadas como se observó en la @fig-gastozona del gasto turístico, permitiendo capturar de manera efectiva los valores atípicos o extremos y al aplicar transformaciones logarítmicas se logró regularizar las distribuciones mejorando la estabilidad y precisión de las estimaciones. En relación a los modelos multinivel hemos podido estudiar la capacidad que estos tienen para identificar la variabilidad y estructura jerárquica de los datos, proporcionando una comprensión enriquecedora y contextualizada de los factores que pueden influir en diversas situaciones de estudio.
