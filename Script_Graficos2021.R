@@ -8,8 +8,7 @@ load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
 ## Grafico de Caja del Gasto y Densidad
 ECV2021NF %>% 
   filter(PGastoTotal>= 200, PGastoTotal <= 10000) %>%
-  ggplot(aes(x = "", y=PGastoTotal))+
-  # add half-violin from {ggdist} package
+  ggplot(aes(x = "", y = PGastoTotal))+
   stat_halfeye(
     # adjust bandwidth
     adjust = 0.5,
@@ -29,19 +28,19 @@ ECV2021NF %>%
   )+
   theme_tq() +
   labs(
-    title = "Gráfico de densidad y caja",
+    title = "Gráfico de densidad y caja para el gasto \n por estadía, 2021.",
     x = "",
-    y = "Gasto",
+    y = "Gasto por estadía",
   ) +
   coord_flip()+
-  theme(legend.position ="right",plot.title = element_text(hjust = 0.5))
-
+  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.45))+
+  theme(text = element_text(family = "Times New Roman"))
 ## Grafico por zonas
 ECV2021NF %>% 
   filter(P11_Zona1 %in% c("Zona Centro", "Zona Insular", "Zona Norte","Zona Occidental",
-                      "Zona Oriental","Zona Sur"),
+                          "Zona Oriental","Zona Sur"),
          PGastoTotal>=200, PGastoTotal<= 5000) %>% 
-  ggplot(aes(x = factor(P11_Zona1), y =PGastoTotal, fill = factor(P11_Zona1)))+
+  ggplot(aes(x = factor(P11_Zona1), y = PGastoTotal, fill = factor(P11_Zona1)))+
   # add half-violin from {ggdist} package
   stat_halfeye(
     # adjust bandwidth
@@ -60,14 +59,14 @@ ECV2021NF %>%
   )+
   theme_tq() +
   labs(
-    title = "Densidades y Box-plot",
+    title = "Grafico de densidades y cajas del gasto \n por estadía.",
     x = "",
-    y = "Gasto ",
+    y = "Gasto por estadía",
     fill = "Zonas"
   )+ 
   coord_flip()+
-  theme(legend.position ="right",plot.title = element_text(hjust = 0.5))
-
+  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.44))+
+  theme(text = element_text(family = "Times New Roman"))
 library(ggplot2)
 library(ggdist)
 
@@ -81,6 +80,8 @@ ECV2021NF %>%
   stat_halfeye(adjust = 0.5, justification = -0.2, .width = 0, point_colour = NA)+
   geom_boxplot(width = 0.12, outlier.color = NA, alpha = 0.7)+
   theme_tq() +
-  labs(title = "Densidades y Box-plot", x = "", y = "Gasto ", fill = "Zonas")+ 
+  labs(title = "Grafico de densidades y cajas del gasto \n por estadía, escala logarítmica.", 
+       x = "", y = "Logaritmo del gasto", fill = "Zonas")+ 
   coord_flip()+
-  theme(legend.position ="right",plot.title = element_text(hjust = 0.5))
+  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5))+
+  theme(text = element_text(family = "Times New Roman"))
