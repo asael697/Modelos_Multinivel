@@ -1,5 +1,6 @@
 library(haven)
 library(foreign)
+library(dplyr)
 
 #####################################################################################
 #               Datos para el 2021
@@ -62,3 +63,44 @@ gl
 LogGFN = na.exclude(log(GastoFinN))
 
 save.image("~/Documents/Modelos_Multinivel/Datos/Datos2016.RData")
+
+
+#####################################################################################
+#               Datos para el 2021 titulos en ingles
+#####################################################################################
+ECV2021 <- read.spss("~/Documents/Modelos_Multinivel/Datos/Base de la ECV 2021.sav")
+ECV2021 <- data.frame(ECV2021)
+## Filtrado de las variables que se necesitan para la estimación 
+
+ECV2021N <- subset(ECV2021, select = c(Validas,Mes,Trimestre,P04,CodCiuRes,
+                                       P04_RegionVA,P04_RegionVF,P10D, P11_Zona1,PGastoTotal))
+
+## Filtrado solo para los datos de Gasto y Perfil
+ECV2021N <- ECV2021N[!is.na(ECV2021N$PGastoTotal), ]
+ECV2021N <- subset(ECV2021N, PGastoTotal > 0)
+
+## Filtrado solo para todas las zona menos la desconocida
+ECV2021NF <- subset(ECV2021N, P11_Zona1 %in% c("Zona Centro","Zona Insular",
+                                               "Zona Norte","Zona Occidental",
+                                               "Zona Oriental","Zona Sur"))
+ECV2021NF <- ECV2021NF %>%
+  mutate(P11_Zona1 = recode(P11_Zona1, 
+                            "Zona Centro" = "Central Zone",
+                            "Zona Insular" = "Insular Zone",
+                            "Zona Norte" = "North Zone",
+                            "Zona Occidental" = "Occidental Zone",
+                            "Zona Oriental" = "Oriental Zone",
+                            "Zona Sur" = "South Zone"))
+
+
+## Conversión del Gasto Fin a escala Logarítmica
+GastoTotal= ECV2021NF$PGastoTotal
+glevels = factor(ECV2021NF$P11_Zona1)
+
+gl = as.numeric(glevels[!is.na(log(GastoTotal))])
+gl
+LogGTN = na.exclude(log(GastoTotal))
+
+# setwd("Modelos_Multinivel/Datos")
+save.image("~/Documents/Modelos_Multinivel/Datos/Datos2021Ingles.RData")
+rm(list = ls())

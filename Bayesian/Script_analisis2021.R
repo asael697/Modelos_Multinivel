@@ -7,7 +7,7 @@ library(ggplot2)
 library(cowplot)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+load("~/Documents/Modelos_Multinivel/Datos/Datos2021Ingles.RData")
 
 # Compilar el codigo Stan del modelo multinivel
 sm1 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/multi_level.stan")
