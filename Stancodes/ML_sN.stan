@@ -1,7 +1,7 @@
 data {
   int<lower=0> n; // Number of observations
   int<lower=1> J; // Number of groups
-  int<lower=1, upper=J> group[n]; // Group assignment for each observation
+  array[n] int<lower=1, upper=J> group; // Group assignment for each observation
   vector[n] y; // Observed log-normal data
 }
 parameters {
@@ -13,7 +13,7 @@ parameters {
 model {
   // priors
   mu ~ normal(0, 10);
-  mu_group ~ normal(mu,1);
+  mu_group ~ normal(mu, 1);
   sigma ~ student_t(3, 0, 1);
   alpha ~ normal(0, 1);
   
