@@ -1,7 +1,7 @@
 data {
   int<lower=0> n; // Number of observations
   int<lower=1> J; // Number of groups
-  int<lower=1, upper=J> group[n]; // Group assignment for each observation
+  array[n] int<lower=1, upper=J> group; // Group assignment for each observation
   vector[n] y; // Observed log-normal data
 }
 parameters {
@@ -25,7 +25,7 @@ generated quantities{
   vector[n] log_lik;
   
   for(i in 1:n){
-    y_rep[i] = normal_rng(mu_group[group[i]],sigma);
-    log_lik[i] = normal_lpdf(y[i] | mu_group[group[i]],sigma);
+    y_rep[i] = normal_rng(mu_group[group[i]], sigma);
+    log_lik[i] = normal_lpdf(y[i] | mu_group[group[i]], sigma);
   }
 }

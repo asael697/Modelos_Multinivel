@@ -1,15 +1,14 @@
 data {
   int<lower=0> n; // Number of observations
   int<lower=1> J; // Number of groups
-  int<lower=1, upper=J> group[n]; // Group assignment for each observation
+  array[n] int<lower=1, upper=J> group; // Group assignment for each observation
   vector[n] y; // Observed log-normal data
 }
 parameters {
   real mu;
   vector[J] mu_group; // Group-level means
   real<lower=0> sigma; // Individual-level standard deviation
-  real<lower=1, upper=J> nu_group[J];
-  #real<lower=2> nu; // Degrees of freedom for t-student generalizada
+  array[J] real<lower=2> nu_group;
 }
 model {
   // Prior for group-level parameters using t-student generalizada

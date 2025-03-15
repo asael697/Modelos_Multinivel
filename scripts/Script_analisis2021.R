@@ -9,6 +9,18 @@ library(ggthemes)
 
 load("~/Documents/Modelos_Multinivel/Datos/Datos2021Ingles.RData")
 
+compute_loo <- function(stan_file_path = NULL, data_list = NULL){
+  sm <- cmdstan_model(stan_file_path)
+  fit <- sm$sample(data = data_list, chains = 4, 
+                   parallel_chains = 4, refresh = 500)
+  
+  ll = fit$draws(variables = "log_lik",format = "matrix")
+  r_eff = relative_eff(exp(ll), cores = 2, chain_id = rep(1:4, each = 1000))
+  loo_results = loo(ll, r_eff = r_eff, cores = 2)
+  
+  return(loo_results)
+}
+
 # Compilar el codigo Stan del modelo multinivel
 sm1 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/multi_level.stan")
 
