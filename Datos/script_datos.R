@@ -29,12 +29,11 @@ ECV2021$zona[ECV2021$P04.1 %in% c("España", "Alemania", "Francia", "Italia", "S
                               "Lituania", "Eslovenia", "Austria", "Dinamarca" , "Irlanda", "Noruega",
                               "Ucrania", "Bélgica")]  <- "Europa"
   
-ECV2021$zona[ECV2021$P04.1 %in% c("Israel", "Turquía", "España", "Rusia (Federación de)")] <- "Asia"
+ECV2021$zona[ECV2021$P04.1 %in% c("Israel", "Turquía", "España", "Rusia (Federación de)")] <- "Resto del Mundo"
 
 
 ECV2021$Procedencia <- as.factor(ECV2021$zona)
-
-colnames(ECV2021)
+table(ECV2021$Procedencia)
 
 ## Filtrado de las variables que se necesitan para la estimación 
 ECV2021N <- subset(ECV2021, select = c(Validas, Mes, Trimestre, Procedencia, CodCiuRes,
@@ -59,11 +58,18 @@ ECV2021NF <- subset(ECV2021N, P11_Zona1 %in% c("Zona Centro","Zona Insular",
 
 ## Conversión del Gasto Fin a escala Logarítmica
 GastoTotal= ECV2021NF$PGastoTotal
-glevels = factor(ECV2021NF$P11_Zona1)
-
-gl = as.numeric(glevels[!is.na(log(GastoTotal))])
-gl
 LogGTN = na.exclude(log(GastoTotal))
+
+glevels1 = factor(ECV2021NF$P11_Zona1)
+glevels2 = factor(ECV2021NF$Procedencia)
+table(glevels2)
+
+gl1 = as.numeric(glevels1[!is.na(log(GastoTotal))])
+gl2 = as.numeric(glevels2[!is.na(log(GastoTotal))])
+
+## Niveles combinados
+glevels3 = factor(paste(ECV2021NF$P11_Zona1,ECV2021NF$Procedencia))
+gl3 = as.numeric(glevels3[!is.na(log(GastoTotal))])
 
 # setwd("Modelos_Multinivel/Datos")
 save.image("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")

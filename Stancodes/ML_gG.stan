@@ -24,6 +24,7 @@ parameters {
   real mu;
   array[J] real mu_group;
   real<lower=0> k;
+  array[J] real<lower=0> k_group;
 }
 model {
   // priors
@@ -32,11 +33,12 @@ model {
   mu_group ~ normal(mu, 10);
   
   k~ normal(0, 1);
+  k_group ~ normal(k, 1);
   // Prior for individual-level parameters
   
   //likelihood
   for(i in 1:n)
-    target += generalized_gamma_lpdf(y[group[i]] | k, mu_group[group[i]], 1.0);
+    target += generalized_gamma_lpdf(y[group[i]] | k_group[group[i]], mu_group[group[i]], 1.0);
 }
 generated quantities{
   vector[n] y_rep;
@@ -44,6 +46,6 @@ generated quantities{
   
  for(i in 1:n){
     y_rep[i] = generalized_gamma_rng(k,  mu_group[group[i]], 1.0);
-    log_lik[i] = generalized_gamma_lpdf(y[group[i]] | k, mu_group[group[i]], 1.0);
+    log_lik[i] = generalized_gamma_lpdf(y[group[i]] | k_group[group[i]], mu_group[group[i]], 1.0);
   }
 }

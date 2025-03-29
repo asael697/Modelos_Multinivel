@@ -14,15 +14,22 @@ source("~/Documents/Modelos_Multinivel/scripts/utils.R")
 sf <- "~/Documents/Modelos_Multinivel/Stancodes/ML_gamma.stan"
 sm <- cmdstan_model(sf)
 
-# La lista de datos que Stan necesita para hacer mcmc
-d1 = list(n = length(GastoTotal), J = 6, group = gl, y = GastoTotal)
-d2 = list(n = length(GastoTotal), J = 1, group = rep(1, length(LogGTN)), y = GastoTotal)
+## Global
+d1 = list(n = length(GastoTotal), J = 1, group = rep(1, length(LogGTN)), y = GastoTotal)
+## Zona visitada
+d2 = list(n = length(GastoTotal), J = 6, group = gl1, y = GastoTotal)
+## Procedencia
+d3 = list(n = length(GastoTotal), J = 6, group = gl2, y = GastoTotal)
+## Procedencia y Zona
+d4 = list(n = length(GastoTotal), J = 34, group = gl3, y = GastoTotal)
 
 # mcmc para modelo multinivel
-fit  <- sm$sample(data = d1, chains = 4, parallel_chains = 4, refresh = 500)
+fit1 <- sm$sample(data = d1, chains = 4, parallel_chains = 4, refresh = 500)
 fit2 <- sm$sample(data = d2, chains = 4, parallel_chains = 4, refresh = 500)
+fit3 <- sm$sample(data = d3, chains = 4, parallel_chains = 4, refresh = 500)
+fit4 <- sm$sample(data = d4, chains = 4, parallel_chains = 4, refresh = 500)
 
-fv = fit$draws(variables = c("mu","mu_group","sigma","alpha", "beta"),
+fv = fit2$draws(variables = c("mu","mu_group","sigma","alpha", "beta"),
               format = "matrix")
 colnames(fv) = c("mu",
                  paste0("mu_",levels(glevels)),
@@ -45,10 +52,10 @@ cowplot::plot_grid(g1,g2,ncol = 2,rel_widths = c(1.1, 1.2))
 ###########################################################
 
 # modelo multinivel normal
-yrep = fit$draws(variables = c("y_rep"),format = "matrix")
-ppc_dens_overlay_grouped(GastoTotal, yrep, group = glevels)
+yrep = fit2$draws(variables = c("y_rep"),format = "matrix")
+ppc_dens_overlay_grouped(GastoTotal, yrep, group = glevels2)
 
 # Leave one out modelo multinivel
-print(loo_compare(fit$loo(), fit2$loo()),simplify = FALSE)
+print(loo_compare(fit1$loo(), fit2$loo(), fit3$loo()),simplify = FALSE)
 
-## result = Hierarchical-zona visitada
+## result = modelo Global fit1
