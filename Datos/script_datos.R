@@ -7,10 +7,44 @@ library(dplyr)
 #####################################################################################
 ECV2021 <- read.spss("~/Documents/Modelos_Multinivel/Datos/Base de la ECV 2021.sav")
 ECV2021 <- data.frame(ECV2021)
-## Filtrado de las variables que se necesitan para la estimación 
+ECV2021$P04.1 = as.character(ECV2021$P04)
 
-ECV2021N <- subset(ECV2021, select = c(Validas,Mes,Trimestre,P04,CodCiuRes,
-                                       P04_RegionVA,P04_RegionVF,P10D, P11_Zona1,PGastoTotal))
+## Zona visitada
+ECV2021$zona <- "Resto del Mundo"
+
+ECV2021$zona[ECV2021$P04.1 %in% c("Estados Unidos de América",
+                                  "México","Canadá")]  <- "Norte-America"
+
+ECV2021$zona[ECV2021$P04.1 %in% c("El Salvador", "Guatemala", "Nicaragua", "Costa Rica",
+                              "Panamá", "Belice")]  <- "Centro-America"
+
+ECV2021$zona[ECV2021$P04.1 %in% c("Colombia", "Brasil", "Ecuador", "Argentina", "Perú", "Uruguay",
+                              "Bolivia", "Paraguay", "Chile")] <- "Sur-America"
+  
+ECV2021$zona[ECV2021$P04.1 %in% c("Islas Caimán", "República Dominicana", 
+                                  "Puerto Rico","Cuba")]  <- "Caribe"
+
+ECV2021$zona[ECV2021$P04.1 %in% c("España", "Alemania", "Francia", "Italia", "Suiza", "Reino Unido" , 
+                              "Países Bajos", "Polonia", "Portugal", "República Checa", "Grecia" ,
+                              "Lituania", "Eslovenia", "Austria", "Dinamarca" , "Irlanda", "Noruega",
+                              "Ucrania", "Bélgica")]  <- "Europa"
+  
+ECV2021$zona[ECV2021$P04.1 %in% c("Israel", "Turquía", "España", "Rusia (Federación de)")] <- "Resto del Mundo"
+
+
+ECV2021$Procedencia <- as.factor(ECV2021$zona)
+table(ECV2021$Procedencia)
+
+## Filtrado de las variables que se necesitan para la estimación 
+ECV2021N <- subset(ECV2021, select = c(Validas, Mes, Trimestre, Procedencia, CodCiuRes,
+                                       P04_RegionVA, P04_RegionVF, P10A, P10D, P11_Zona1,
+                                       GruGasto, PGastoTotal, TipVisitante, Hotel, Amigos, 
+                                       CasaP, Ninguno))
+
+ECV2021N$Hotel[is.na(ECV2021N$Hotel)] <- 0
+ECV2021N$Amigos[is.na(ECV2021N$Amigos)] <- 0
+ECV2021N$CasaP[is.na(ECV2021N$CasaP)] <- 0
+ECV2021N$Ninguno[is.na(ECV2021N$Ninguno)] <- 0
 
 ## Filtrado solo para los datos de Gasto y Perfil
 ECV2021N <- ECV2021N[!is.na(ECV2021N$PGastoTotal), ]
@@ -24,11 +58,18 @@ ECV2021NF <- subset(ECV2021N, P11_Zona1 %in% c("Zona Centro","Zona Insular",
 
 ## Conversión del Gasto Fin a escala Logarítmica
 GastoTotal= ECV2021NF$PGastoTotal
-glevels = factor(ECV2021NF$P11_Zona1)
-
-gl = as.numeric(glevels[!is.na(log(GastoTotal))])
-gl
 LogGTN = na.exclude(log(GastoTotal))
+
+glevels1 = factor(ECV2021NF$P11_Zona1)
+glevels2 = factor(ECV2021NF$Procedencia)
+table(glevels2)
+
+gl1 = as.numeric(glevels1[!is.na(log(GastoTotal))])
+gl2 = as.numeric(glevels2[!is.na(log(GastoTotal))])
+
+## Niveles combinados
+glevels3 = factor(paste(ECV2021NF$P11_Zona1,ECV2021NF$Procedencia))
+gl3 = as.numeric(glevels3[!is.na(log(GastoTotal))])
 
 # setwd("Modelos_Multinivel/Datos")
 save.image("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
