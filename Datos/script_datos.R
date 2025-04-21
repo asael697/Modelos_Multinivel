@@ -29,7 +29,7 @@ ECV2021$zona[ECV2021$P04.1 %in% c("España", "Alemania", "Francia", "Italia", "S
                               "Lituania", "Eslovenia", "Austria", "Dinamarca" , "Irlanda", "Noruega",
                               "Ucrania", "Bélgica")]  <- "Europa"
   
-ECV2021$zona[ECV2021$P04.1 %in% c("Israel", "Turquía", "España", "Rusia (Federación de)")] <- "Resto del Mundo"
+ECV2021$zona[ECV2021$P04.1 %in% c("Israel", "Turquía", "Rusia (Federación de)")] <- "Resto del Mundo"
 
 
 ECV2021$Procedencia <- as.factor(ECV2021$zona)
