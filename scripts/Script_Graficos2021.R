@@ -3,7 +3,7 @@ library(tidyquant)
 library(ggdist)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+load("~/Documents/GitHub/Modelos_Multinivel/Datos/Datos2021.RData")
 ## Grafico de Caja del Gasto y Densidad
 ECV2021NF %>% 
   filter(PGastoTotal>= 200, PGastoTotal <= 10000) %>%
@@ -88,7 +88,7 @@ ECV2021NF %>%
 ########################################################################
 ## Graficos en Ingles
 #######################################################################
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021Ingles.RData")
+load("~/Documents/Github/Modelos_Multinivel/Datos/Datos2021Ingles.RData")
 
 ## Grafico de Caja del Gasto y Densidad
 ECV2021NF %>% 
@@ -172,3 +172,36 @@ ECV2021NF %>%
   theme(text = element_text(family = "Times New Roman"))
 
 
+
+# Grafico por procedencia del turista
+ECV2021NF %>% 
+  filter(Procedencia %in% c("Caribe", "Centro-America", "Europa", 
+                            "Norte-America", "Resto del Mundo", "Sur-America"),
+         PGastoTotal>=200, PGastoTotal<= 5000) %>% 
+  ggplot(aes(x = factor(Procedencia), y = PGastoTotal, fill = factor(Procedencia)))+
+  # add half-violin from {ggdist} package
+  stat_halfeye(
+    # adjust bandwidth
+    adjust = 0.5,
+    # move to the right
+    justification = -0.2,
+    # remove the slub interval
+    .width = 0,
+    point_colour = NA
+  )+
+  geom_boxplot(
+    width = 0.12,
+    # removing outliers
+    outlier.color = NA,
+    alpha = 0.7
+  )+
+  theme_tq() +
+  labs(
+    title = "Distribución del gasto turístico por procedencia del visitante \n mediante diagramas de densidad y cajas (ECV 2021)",
+    x = "",
+    y = "Gasto por estadía",
+    fill = "Procendencia"
+  )+ 
+  coord_flip()+
+  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.44))+
+  theme(text = element_text(family = "Times New Roman"))
