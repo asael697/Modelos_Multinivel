@@ -13,13 +13,13 @@ ECV2021$P04.1 = as.character(ECV2021$P04)
 ECV2021$zona <- "Resto del Mundo"
 
 ECV2021$zona[ECV2021$P04.1 %in% c("Estados Unidos de América",
-                                  "México","Canadá")]  <- "Norte-America"
+                                  "México","Canadá")]  <- "Norte-América"
 
 ECV2021$zona[ECV2021$P04.1 %in% c("El Salvador", "Guatemala", "Nicaragua", "Costa Rica",
-                              "Panamá", "Belice")]  <- "Centro-America"
+                              "Panamá", "Belice")]  <- "Centro-América"
 
 ECV2021$zona[ECV2021$P04.1 %in% c("Colombia", "Brasil", "Ecuador", "Argentina", "Perú", "Uruguay",
-                              "Bolivia", "Paraguay", "Chile")] <- "Sur-America"
+                              "Bolivia", "Paraguay", "Chile")] <- "Sur-América"
   
 ECV2021$zona[ECV2021$P04.1 %in% c("Islas Caimán", "República Dominicana", 
                                   "Puerto Rico","Cuba")]  <- "Caribe"
@@ -74,7 +74,7 @@ gl3 = as.numeric(glevels3[!is.na(log(GastoTotal))])
 gl3
 
 # setwd("Modelos_Multinivel/Datos")
-save.image("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+save.image("~/Documents/Github/Modelos_Multinivel/Datos/Datos2021.RData")
 rm(list = ls())
 
 #####################################################################################
