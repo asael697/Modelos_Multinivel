@@ -5,7 +5,7 @@ library(dplyr)
 #####################################################################################
 #               Datos para el 2021
 #####################################################################################
-ECV2021 <- read.spss("~/Documents/Modelos_Multinivel/Datos/Base de la ECV 2021.sav")
+ECV2021 <- read.spss("~/Documents/Github/Modelos_Multinivel/Datos/Base de la ECV 2021.sav")
 ECV2021 <- data.frame(ECV2021)
 ECV2021$P04.1 = as.character(ECV2021$P04)
 
@@ -29,7 +29,7 @@ ECV2021$zona[ECV2021$P04.1 %in% c("España", "Alemania", "Francia", "Italia", "S
                               "Lituania", "Eslovenia", "Austria", "Dinamarca" , "Irlanda", "Noruega",
                               "Ucrania", "Bélgica")]  <- "Europa"
   
-ECV2021$zona[ECV2021$P04.1 %in% c("Israel", "Turquía", "España", "Rusia (Federación de)")] <- "Resto del Mundo"
+ECV2021$zona[ECV2021$P04.1 %in% c("Israel", "Turquía", "Rusia (Federación de)")] <- "Resto del Mundo"
 
 
 ECV2021$Procedencia <- as.factor(ECV2021$zona)
@@ -62,6 +62,7 @@ LogGTN = na.exclude(log(GastoTotal))
 
 glevels1 = factor(ECV2021NF$P11_Zona1)
 glevels2 = factor(ECV2021NF$Procedencia)
+table(glevels1)
 table(glevels2)
 
 gl1 = as.numeric(glevels1[!is.na(log(GastoTotal))])
@@ -70,6 +71,7 @@ gl2 = as.numeric(glevels2[!is.na(log(GastoTotal))])
 ## Niveles combinados
 glevels3 = factor(paste(ECV2021NF$P11_Zona1,ECV2021NF$Procedencia))
 gl3 = as.numeric(glevels3[!is.na(log(GastoTotal))])
+gl3
 
 # setwd("Modelos_Multinivel/Datos")
 save.image("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
