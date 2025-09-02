@@ -58,13 +58,13 @@ ECV2021NF %>%
   )+
   theme_tq() +
   labs(
-    title = "Grafico de densidades y cajas del gasto \n por estadía.",
-    x = "",
-    y = "Gasto por estadía",
+    title = "Densidades y Box-plots del gasto turístico por zona",
+    x = "Zonas",
+    y = "Gasto turîstico",
     fill = "Zonas"
   )+ 
   coord_flip()+
-  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.44))+
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.44))+
   theme(text = element_text(family = "Times New Roman"))
 library(ggplot2)
 library(ggdist)
@@ -79,10 +79,10 @@ ECV2021NF %>%
   stat_halfeye(adjust = 0.5, justification = -0.2, .width = 0, point_colour = NA)+
   geom_boxplot(width = 0.12, outlier.color = NA, alpha = 0.7)+
   theme_tq() +
-  labs(title = "Grafico de densidades y cajas del gasto \n por estadía, escala logarítmica.", 
-       x = "", y = "Logaritmo del gasto", fill = "Zonas")+ 
+  labs(title = "Densidades y Box-plots del gasto turístico por zona (escala logarítmica)", 
+       x = "Zonas", y = "Logaritmo del gasto", fill = "Zonas")+ 
   coord_flip()+
-  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5))+
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+
   theme(text = element_text(family = "Times New Roman"))
 
 # Grafico por procedencia del turista
@@ -109,9 +109,9 @@ ECV2021NF %>%
   )+
   theme_tq() +
   labs(
-    title = "Densidades y Box-plot",
-    x = "",
-    y = "Gasto",
+    title = "Densidades y Box-plots del gasto turístico por procedencia",
+    x = "Procedencia",
+    y = "Gasto turístico",
     fill = "Procedencia"
   )+ 
   coord_flip()+
@@ -142,9 +142,9 @@ ECV2021NF %>%
   )+
   theme_tq() +
   labs(
-    title = "Densidades y Box-plot",
-    x = "",
-    y = "Gasto",
+    title = "Densidades y Box-plots del gasto turístico por procedencia (escala logaritmica)",
+    x = "Procedencia",
+    y = "Logaritmo del gasto",
     fill = "Procedencia"
   )+ 
   coord_flip()+
