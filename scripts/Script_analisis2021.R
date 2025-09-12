@@ -7,7 +7,7 @@ library(ggplot2)
 library(cowplot)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+load("~/Documents/GitHub/Modelos_Multinivel/Datos/Datos2021.RData")
 
 compute_loo <- function(stan_file_path = NULL, data_list = NULL){
   sm <- cmdstan_model(stan_file_path)
@@ -22,21 +22,21 @@ compute_loo <- function(stan_file_path = NULL, data_list = NULL){
 }
 
 # Gamma
-sm1 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_gamma.stan")
+sm1 <- cmdstan_model("~/Documents/GitHub/Modelos_Multinivel/Stancodes/ML_gamma.stan")
 # Gamma generalizada
-sm2 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_gG.stan")
+sm2 <- cmdstan_model("~/Documents/GitHub/Modelos_Multinivel/Stancodes/ML_gG.stan")
 # Inversa Gamma
-sm3 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_gamma.stan")
+sm3 <- cmdstan_model("~/Documents/GitHub/Modelos_Multinivel/Stancodes/ML_gamma.stan")
 # Normal
-sm4 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_N.stan")
+sm4 <- cmdstan_model("~/Documents/GitHub/Modelos_Multinivel/Stancodes/ML_N.stan")
 # Normal skew
-sm5 <- cmdstan_model( "~/Documents/Modelos_Multinivel/Stancodes/ML_sN.stan")
+sm5 <- cmdstan_model( "~/Documents/GitHub/Modelos_Multinivel/Stancodes/ML_sN.stan")
 # student t
-sm6 <- cmdstan_model("~/Documents/Modelos_Multinivel/Stancodes/ML_t.stan")
+sm6 <- cmdstan_model("~/Documents/GitHub/Modelos_Multinivel/Stancodes/ML_t.stan")
 
 # La lista de datos que Stan necesita para hacer mcmc
 ## Global
-d1 = list(n = length(GastoTotal), J = 1, group = rep(1, length(LogGTN)), y = GastoTotal)
+d1 = list(n = length(GastoTotal), J = 1, group = rep(1, length(GastoTotal)), y = GastoTotal)
 d1_log = list(n = length(LogGTN), J = 1, group = rep(1, length(LogGTN)), y = LogGTN)
 ## Zona visitada
 d2 = list(n = length(GastoTotal), J = 6, group = gl1, y = GastoTotal)

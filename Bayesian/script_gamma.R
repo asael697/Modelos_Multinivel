@@ -7,15 +7,15 @@ library(ggplot2)
 library(cowplot)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
-source("~/Documents/Modelos_Multinivel/scripts/utils.R")
+load("~/Documents/Github/Modelos_Multinivel/Datos/Datos2021.RData")
+source("~/Documents/Github/Modelos_Multinivel/scripts/utils.R")
 
 # Compilar el codigo Stan del modelo multinivel
-sf <- "~/Documents/Modelos_Multinivel/Stancodes/ML_gamma.stan"
+sf <- "~/Documents/Github/Modelos_Multinivel/Stancodes/ML_gamma.stan"
 sm <- cmdstan_model(sf)
 
 ## Global
-d1 = list(n = length(GastoTotal), J = 1, group = rep(1, length(LogGTN)), y = GastoTotal)
+d1 = list(n = length(GastoTotal), J = 1, group = rep(1, length(GastoTotal)), y = GastoTotal)
 ## Zona visitada
 d2 = list(n = length(GastoTotal), J = 6, group = gl1, y = GastoTotal)
 ## Procedencia

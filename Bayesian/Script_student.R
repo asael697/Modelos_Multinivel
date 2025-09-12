@@ -7,9 +7,9 @@ library(ggplot2)
 library(cowplot)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+load("~/Documents/Github/Modelos_Multinivel/Datos/Datos2021.RData")
 
-sf <- "~/Documents/Modelos_Multinivel/Stancodes/ML_t.stan"
+sf <- "~/Documents/Github/Modelos_Multinivel/Stancodes/ML_t.stan"
 sm <- cmdstan_model(sf)
 
 # La lista de datos que Stan necesita para hacer mcmc
