@@ -48,10 +48,21 @@ d3_log = list(n = length(LogGTN), J = 6, group = gl2, y = LogGTN)
 d4 = list(n = length(GastoTotal), J = 34, group = gl3, y = GastoTotal)
 d4_log = list(n = length(LogGTN), J = 34, group = gl3, y = LogGTN)
 
+## datos para la inversa Gamma
+# Gasto Global
+d1_inver <- list(n = length(GastoTotal), J = 1, group = rep(1, length(GastoTotal)), y = 1/GastoTotal)
+# Zona Visitada
+d2_inver <- list(n = length(GastoTotal), J = length(unique(gl1)), group = gl1, y = 1/GastoTotal)
+# Procedencia del turista
+d3_inver <- list(n = length(GastoTotal), J = length(unique(gl2)), group = gl2, y = 1/GastoTotal)
+# Zona -Procedencia
+d4_inver <- list(n = length(GastoTotal), J = length(unique(gl3)), group = gl3, y = 1/GastoTotal)
+
+# ajustes de los modelos
 ## ajustar modelo
 fit1 <- sm1$sample(data = d1, chains = 4, parallel_chains = 4, refresh = 500)
 fit2 <- sm2$sample(data = d4, chains = 4, parallel_chains = 4,refresh = 500)
-fit3 <- sm3$sample(data = d3, chains = 4, parallel_chains = 4,refresh = 500)
+fit3 <- sm3$sample(data = d1_inver, chains = 4, parallel_chains = 4,refresh = 500)
 fit4 <- sm4$sample(data = d4_log, chains = 4, parallel_chains = 4,refresh = 500)
 fit5 <- sm5$sample(data = d4_log, chains = 4, parallel_chains = 4,refresh = 500)
 fit5.1 <- sm5$sample(data = d2_log, chains = 4, parallel_chains = 4,refresh = 500) #Zona
@@ -60,7 +71,9 @@ fit5.3 <- sm5$sample(data = d3, chains = 4, parallel_chains = 4,refresh = 500) #
 fit6 <- sm6$sample(data = d4_log, chains = 4, parallel_chains = 4,refresh = 500)
 
 ## fit2, y fit6 tienen mal diagnositcos en loo
+fit1$loo()
 fit2$loo()
+fit3$loo()
 fit4$loo()
 fit5$loo()
 fit5.1$loo()
