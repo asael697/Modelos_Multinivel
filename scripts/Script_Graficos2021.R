@@ -3,7 +3,7 @@ library(tidyquant)
 library(ggdist)
 library(ggthemes)
 
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021.RData")
+load("~/Documents/GitHub/Modelos_Multinivel/Datos/Datos2021.RData")
 ## Grafico de Caja del Gasto y Densidad
 ECV2021NF %>% 
   filter(PGastoTotal>= 200, PGastoTotal <= 10000) %>%
@@ -58,13 +58,13 @@ ECV2021NF %>%
   )+
   theme_tq() +
   labs(
-    title = "Grafico de densidades y cajas del gasto \n por estadía.",
-    x = "",
-    y = "Gasto por estadía",
+    title = "Densidades y Box-plots del gasto turístico por zona",
+    x = "Zonas",
+    y = "Gasto turîstico",
     fill = "Zonas"
   )+ 
   coord_flip()+
-  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.44))+
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.44))+
   theme(text = element_text(family = "Times New Roman"))
 library(ggplot2)
 library(ggdist)
@@ -79,16 +79,83 @@ ECV2021NF %>%
   stat_halfeye(adjust = 0.5, justification = -0.2, .width = 0, point_colour = NA)+
   geom_boxplot(width = 0.12, outlier.color = NA, alpha = 0.7)+
   theme_tq() +
-  labs(title = "Grafico de densidades y cajas del gasto \n por estadía, escala logarítmica.", 
-       x = "", y = "Logaritmo del gasto", fill = "Zonas")+ 
+  labs(title = "Densidades y Box-plots del gasto turístico por zona (escala logarítmica)", 
+       x = "Zonas", y = "Logaritmo del gasto", fill = "Zonas")+ 
   coord_flip()+
-  theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5))+
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.5))+
   theme(text = element_text(family = "Times New Roman"))
+
+# Grafico por procedencia del turista
+ECV2021NF %>% 
+  filter(Procedencia %in% c("Caribe", "Centro-América", "Europa", 
+                            "Norte-América", "Resto del Mundo", "Sur-América"),
+         PGastoTotal>=200, PGastoTotal<= 5000) %>% 
+  ggplot(aes(x = factor(Procedencia), y = PGastoTotal, fill = factor(Procedencia)))+
+  # add half-violin from {ggdist} package
+  stat_halfeye(
+    # adjust bandwidth
+    adjust = 0.5,
+    # move to the right
+    justification = -0.2,
+    # remove the slub interval
+    .width = 0,
+    point_colour = NA
+  )+
+  geom_boxplot(
+    width = 0.12,
+    # removing outliers
+    outlier.color = NA,
+    alpha = 0.7
+  )+
+  theme_tq() +
+  labs(
+    title = "Densidades y Box-plots del gasto turístico por procedencia",
+    x = "Procedencia",
+    y = "Gasto turístico",
+    fill = "Procedencia"
+  )+ 
+  coord_flip()+
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.44))+
+  theme(text = element_text(family = "Times New Roman"))
+
+# Grafico por procedencia del turista logaritmico
+ECV2021NF %>% 
+  filter(Procedencia %in% c("Caribe", "Centro-América", "Europa", 
+                            "Norte-América", "Resto del Mundo", "Sur-América"),
+  ) %>% 
+  ggplot(aes(x = factor(Procedencia), y = log(PGastoTotal), fill = factor(Procedencia)))+
+  # add half-violin from {ggdist} package
+  stat_halfeye(
+    # adjust bandwidth
+    adjust = 0.5,
+    # move to the right
+    justification = -0.2,
+    # remove the slub interval
+    .width = 0,
+    point_colour = NA
+  )+
+  geom_boxplot(
+    width = 0.12,
+    # removing outliers
+    outlier.color = NA,
+    alpha = 0.7
+  )+
+  theme_tq() +
+  labs(
+    title = "Densidades y Box-plots del gasto turístico por procedencia (escala logaritmica)",
+    x = "Procedencia",
+    y = "Logaritmo del gasto",
+    fill = "Procedencia"
+  )+ 
+  coord_flip()+
+  theme(legend.position = "right", plot.title = element_text(hjust = 0.44))+
+  theme(text = element_text(family = "Times New Roman"))
+
 
 ########################################################################
 ## Graficos en Ingles
 #######################################################################
-load("~/Documents/Modelos_Multinivel/Datos/Datos2021Ingles.RData")
+load("~/Documents/Github/Modelos_Multinivel/Datos/Datos2021Ingles.RData")
 
 ## Grafico de Caja del Gasto y Densidad
 ECV2021NF %>% 
@@ -170,5 +237,7 @@ ECV2021NF %>%
   coord_flip()+
   theme(legend.position = "bottom", plot.title = element_text(hjust = 0.5))+
   theme(text = element_text(family = "Times New Roman"))
+
+
 
 
